@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#1A2B4A"/>
+<title>Coach AI — Martin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0D1B2A;--blue:#1A2B4A;--mid:#2E4A7A;--gold:#E8A020;--text:#F0F4F8;--muted:#94A3B8;--dim:#475569;--green:#2E7D32;--red:#C62828;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Barlow Condensed',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;}
+.header{background:linear-gradient(135deg,var(--blue),var(--mid));border-bottom:3px solid var(--gold);padding:16px;}
+.header h1{font-size:22px;font-weight:800;letter-spacing:1px;}
+.header p{font-size:11px;color:var(--muted);margin-top:2px;}
+.tabs{display:flex;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.08);}
+.tab{flex:1;padding:12px 4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.page{display:none;padding:16px;}
+.page.active{display:block;}
+.zones{display:flex;gap:4px;margin-bottom:14px;}
+.zc{flex:1;border-radius:6px;padding:6px 3px;text-align:center;}
+.zn{font-size:9px;font-weight:700;color:#1A2B4A;}
+.zr{font-size:9px;color:#1A2B4A;}
+.week-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(232,160,32,0.2);border-radius:12px;padding:12px;margin-bottom:14px;}
+.wbtn{background:rgba(232,160,32,0.15);border:1px solid var(--gold);color:var(--gold);border-radius:8px;width:36px;height:36px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;flex-shrink:0;}
+.wnum{font-size:42px;font-weight:800;color:var(--gold);min-width:44px;text-align:center;line-height:1;}
+.wlabel{font-size:10px;color:var(--muted);letter-spacing:2px;}
+.phase-box{flex:1;border-radius:8px;padding:10px 12px;}
+.upload{border:2px dashed rgba(232,160,32,0.4);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);margin-bottom:12px;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.upload img{max-width:100%;max-height:240px;border-radius:8px;object-fit:contain;}
+.upload-icon{font-size:32px;margin-bottom:8px;opacity:0.5;}
+.upload-text{font-size:14px;color:var(--muted);}
+.upload-sub{font-size:11px;color:var(--dim);margin-top:4px;}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:8px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#F5C842);color:var(--navy);}
+.btn-gold:disabled{background:rgba(232,160,32,0.3);color:var(--muted);cursor:not-allowed;}
+.btn-clear{background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:12px;display:none;}
+.error{background:#FFEBEE;border:1px solid var(--red);border-radius:10px;padding:12px;color:var(--red);font-size:13px;margin-bottom:12px;display:none;}
+.loading{text-align:center;padding:28px;background:rgba(232,160,32,0.06);border:1px solid rgba(232,160,32,0.25);border-radius:14px;margin-bottom:12px;display:none;}
+.loading-emoji{font-size:32px;display:inline-block;animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.empty{text-align:center;padding:32px 16px;border:1px solid rgba(255,255,255,0.06);border-radius:14px;background:rgba(255,255,255,0.02);color:var(--dim);font-size:13px;line-height:1.7;}
+.score-banner{border-radius:14px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.score-num{font-size:60px;font-weight:800;line-height:1;}
+.score-label{font-size:12px;font-weight:700;letter-spacing:2px;margin-top:2px;}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;}
+.ml{font-size:9px;color:#64748B;letter-spacing:1px;text-transform:uppercase;}
+.mv{font-size:13px;font-weight:700;}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:14px;margin-bottom:10px;}
+.card.green{background:rgba(46,125,50,0.08);border-color:rgba(46,125,50,0.3);}
+.card.gold{background:rgba(232,160,32,0.06);border-color:rgba(232,160,32,0.3);}
+.card.blue{background:rgba(21,101,192,0.1);border-color:rgba(21,101,192,0.35);}
+.card.red{background:#FFEBEE;border-color:var(--red);}
+.clabel{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;}
+.finding{display:flex;gap:8px;margin-bottom:8px;font-size:13px;color:#CBD5E1;line-height:1.5;}
+.grey-warn{background:#FFF9C4;border:1px solid #F9A825;border-radius:8px;padding:10px;font-size:12px;color:#E65100;margin-top:8px;line-height:1.5;}
+.key-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.key-input{flex:1;padding:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(232,160,32,0.4);border-radius:10px;color:var(--text);font-size:13px;font-family:'Barlow Condensed',sans-serif;outline:none;}
+.key-input:focus{border-color:var(--gold);}
+.key-btn{padding:12px 16px;background:var(--gold);border:none;border-radius:10px;color:var(--navy);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.key-note{font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:14px;}
+.recovery{background:#FFEBEE;border:1px solid var(--red);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--red);font-weight:700;margin-top:8px;}
+.sched-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.sched-item:last-child{border-bottom:none;}
+.day-badge{font-size:10px;font-weight:700;border-radius:6px;padding:4px 8px;min-width:60px;text-align:center;color:#1A2B4A;}
+.zone-card{border-radius:10px;padding:12px;margin-bottom:8px;}
+.hist-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.hist-score{font-size:28px;font-weight:800;min-width:36px;text-align:center;}
+.fade-in{animation:fadeUp 0.4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:2px">PERSONAL COACHING SYSTEM</div>
+      <h1>Coach AI — Martin</h1>
+      <p>12-Week Heart Rate Training · Garmin Analysis</p>
+    </div>
+    <div id="phaseBadge" style="font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;text-align:center;color:white;margin-top:4px"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('assess')">📊 Assess</button>
+  <button class="tab" onclick="switchTab('plan')">📅 Plan</button>
+  <button class="tab" onclick="switchTab('history')">📈 History</button>
+  <button class="tab" onclick="switchTab('zones')">💓 Zones</button>
+</div>
+
+<!-- ASSESS -->
+
+<div id="tab-assess" class="page active">
+
+  <!-- API Key -->
+
+  <div id="keySection">
+    <div class="key-note">🔑 Paste your Anthropic API key once — it's saved privately on this device only.</div>
+    <div class="key-row">
+      <input type="text" class="key-input" id="keyInput" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+      <button class="key-btn" onclick="saveKey()">Save</button>
+    </div>
+  </div>
+
+  <!-- Zones -->
+
+  <div class="zones">
+    <div class="zc" style="background:#B3E5FC"><div class="zn">Z1</div><div class="zr">98–118</div></div>
+    <div class="zc" style="background:#C8E6C9"><div class="zn">Z2★</div><div class="zr">118–130</div></div>
+    <div class="zc" style="background:#FFF9C4"><div class="zn">Z3</div><div class="zr">130–142</div></div>
+    <div class="zc" style="background:#FFCCBC"><div class="zn">Z4</div><div class="zr">142–152</div></div>
+    <div class="zc" style="background:#FFCDD2"><div class="zn">Z5</div><div class="zr">152–159</div></div>
+  </div>
+
+  <!-- Week -->
+
+  <div class="week-row">
+    <button class="wbtn" onclick="changeWeek(-1)">−</button>
+    <div style="text-align:center"><div class="wlabel">WEEK</div><div class="wnum" id="weekNum">1</div></div>
+    <div class="phase-box" id="phaseBox"></div>
+    <button class="wbtn" onclick="changeWeek(1)">+</button>
+  </div>
+
+  <!-- Upload -->
+
+  <div class="upload" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this.files[0])"/>
+    <div id="uploadPlaceholder">
+      <div class="upload-icon">📱</div>
+      <div class="upload-text">Tap to upload Garmin screenshot</div>
+      <div class="upload-sub">PNG or JPG</div>
+    </div>
+    <img id="previewImg" style="display:none"/>
+  </div>
+
+<button class="btn btn-gold" id="analyseBtn" onclick="analyse()" disabled>⚡ ANALYSE WITH COACH AI</button>
+<button class="btn btn-clear" id="clearBtn" onclick="clearUpload()">Clear & upload new screenshot</button>
+
+  <div class="error" id="errorBox"></div>
+
+  <div class="loading" id="loadingBox">
+    <div class="loading-emoji">🏃</div>
+    <div style="font-size:15px;color:var(--gold);margin-top:10px">Coach AI is reviewing your session...</div>
+  </div>
+
+  <div id="results"></div>
+  <div class="empty" id="emptyState">
+    After your session, take a screenshot from<br>Garmin Connect (Charts tab) and upload it above.<br><br>
+    Your coach will analyse every detail and tell you<br>exactly how you're tracking.
+  </div>
+
+</div>
+
+<!-- PLAN -->
+
+<div id="tab-plan" class="page">
+  <div class="card" style="margin-bottom:10px">
+    <div class="clabel">THIS WEEK'S SESSIONS</div>
+    <div id="weekSchedule"></div>
+  </div>
+  <div class="card gold">
+    <div class="clabel" style="color:var(--gold)">80/20 RULE</div>
+    <div style="font-size:13px;color:#CBD5E1;line-height:1.7">
+      <strong style="color:var(--gold)">80%</strong> of training in Zone 2 (118–130 bpm) — fat burning and aerobic base.<br>
+      <strong style="color:var(--gold)">20%</strong> in Zone 4 (142–152 bpm) — your weekly interval session only.<br>
+      <span style="color:var(--red)">Avoid Zone 3</span> — the grey zone. Too hard to recover from, not hard enough to improve fitness.
+    </div>
+  </div>
+  <div class="card">
+    <div class="clabel">12-WEEK PHASES</div>
+    <div id="phaseOverview"></div>
+  </div>
+  <div class="card red">
+    <div class="clabel" style="color:var(--red)">⚠ L4/L5 BACK SAFETY</div>
+    <div style="font-size:12px;color:var(--red);line-height:1.6">Avoid: heavy deadlifts · barbell back squats · sit-ups or crunches · any exercise causing lower back pain or leg numbness.</div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+
+<div id="tab-history" class="page">
+  <div class="clabel" style="margin-bottom:10px">PREVIOUS ASSESSMENTS</div>
+  <div id="historyList"></div>
+  <button class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:12px;margin-top:8px" onclick="clearHistory()">Clear all history</button>
+</div>
+
+<!-- ZONES -->
+
+<div id="tab-zones" class="page">
+  <div class="card" style="margin-bottom:10px">
+    <div class="clabel">YOUR HEART RATE ZONES — KARVONEN METHOD</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Resting HR 61 · Max HR 159 · Age 61</div>
+    <div id="zoneCards"></div>
+  </div>
+  <div class="card blue">
+    <div class="clabel" style="color:#64B5F6">GARMIN SETUP</div>
+    <div style="font-size:13px;color:#CBD5E1;line-height:1.7">
+      <strong style="color:#64B5F6">On Fenix 6X Pro:</strong><br>
+      Menu → Settings → User Profile → Heart Rate → Max HR → 159 (Manual) → HR Zones → BPM → enter zones above<br><br>
+      <strong style="color:#64B5F6">Zone 2 Alert:</strong><br>
+      Activity Settings → Alerts → Heart Rate → High Alert → 130 bpm → Vibrate
+    </div>
+  </div>
+</div>
+
+<script>
+const PHASES=[
+  {weeks:'1–4',name:'Foundation',color:'#1565C0',focus:'Building Zone 2 habit & aerobic base'},
+  {weeks:'5–8',name:'Development',color:'#2E7D32',focus:'Longer sessions & progressive intervals'},
+  {weeks:'9–12',name:'Consolidation',color:'#AD1457',focus:'Peak volume & measurable fitness gains'},
+];
+const SCHEDULE=[
+  {day:'Saturday',type:'Easy Run',hr:'118–130 bpm',color:'#C8E6C9',note:'Walk hills if HR > 130'},
+  {day:'Sunday',type:'Easy Cycle',hr:'118–130 bpm',color:'#C8E6C9',note:'90 min–3 hrs, Zone 2 strictly'},
+  {day:'Mon/Tue',type:'Intervals',hr:'Mixed Z2/Z4',color:'#FFCCBC',note:'15\' warm-up + intervals + cool-down'},
+  {day:'Thursday',type:'Weights & Core',hr:'N/A',color:'#E1BEE7',note:'Back-safe exercises only'},
+];
+const ZONES=[
+  {name:'Zone 1 — Recovery',range:'98–118 bpm',bg:'#B3E5FC',desc:'Very easy. Active recovery only. You can sing.'},
+  {name:'Zone 2 — Fat Burn ★',range:'118–130 bpm',bg:'#C8E6C9',desc:'PRIMARY zone. 80% of all training. Easy conversation. Where aerobic base and fat burning happen.'},
+  {name:'Zone 3 — Grey Zone',range:'130–142 bpm',bg:'#FFF9C4',desc:'AVOID on easy days. Too hard to recover from, not hard enough to drive fitness gains.'},
+  {name:'Zone 4 — Threshold',range:'142–152 bpm',bg:'#FFCCBC',desc:'Hard effort. Used ONLY during interval portions of your weekly interval session.'},
+  {name:'Zone 5 — Maximum',range:'152–159 bpm',bg:'#FFCDD2',desc:'All-out. Unsustainable. Brief peaks only.'},
+];
+const HARDCODED_KEY='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';
+const PROMPT=`You are Coach AI analyzing Garmin Connect screenshots for Martin, 61 years old, 82kg, on a 12-week heart rate training program.
+HR Zones: Z1:98-118, Z2:118-130(PRIMARY-80% of training), Z3:130-142(AVOID-grey zone), Z4:142-152(intervals only), Z5:152-159.
+Weekly: Saturday=easy run Z2, Sunday=easy cycle Z2, Mon/Tue=intervals, Thursday=weights.
+Phases: 1(wks1-4)=Foundation shorter sessions 3x6min intervals, 2(wks5-8)=Development longer sessions 4x8min intervals, 3(wks9-12)=Consolidation peak volume 4-5x10min intervals. Recovery weeks 4,8,12.
+Condition: L4/L5 disc degeneration.
+Respond ONLY with this JSON, no other text:
+{"sessionType":"run/cycle/weights/unknown","duration":"if visible","avgHR":"if visible","calories":"if visible","overallScore":1-10,"scoreLabel":"Excellent/Good/On Track/Needs Adjustment/Off Plan","zone2Compliance":"description","greyZoneWarning":true/false,"keyFindings":["finding1","finding2","finding3"],"coachingAdjustments":["adj1","adj2","adj3"],"positives":["pos1","pos2"],"weeklyContext":"brief comment","nextSessionAdvice":"specific advice","urgentFlag":null}`;
+
+let week=parseInt(localStorage.getItem('coachWeek')||'1');
+let imgB64=null;
+let busy=false;
+
+function getKey(){return localStorage.getItem('coachKey')||HARDCODED_KEY;}
+function saveKey(){
+  const k=document.getElementById('keyInput').value.trim();
+  if(!k){alert('Please paste your API key first');return;}
+  localStorage.setItem('coachKey',k);
+  document.getElementById('keySection').style.display='none';
+  alert('✅ API key saved! You can now analyse your sessions.');
+}
+
+function init(){
+  if(!localStorage.getItem('coachKey')){localStorage.setItem('coachKey',HARDCODED_KEY);}
+  document.getElementById('keySection').style.display='none';
+  const k=getKey();
+  if(k){
+    document.getElementById('keySection').style.display='none';
+  } else {
+    document.getElementById('keySection').style.display='block';
+  }
+  renderWeek();
+  renderPlan();
+  renderZones();
+  renderHistory();
+}
+
+function getPhase(w){return w<=4?0:w<=8?1:2;}
+
+function renderWeek(){
+  const ph=getPhase(week);
+  const p=PHASES[ph];
+  document.getElementById('weekNum').textContent=week;
+  document.getElementById('phaseBox').innerHTML=`<div style="background:${p.color};border-radius:8px;padding:8px 10px"><div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.7)">PHASE ${ph+1} · WKS ${p.weeks}</div><div style="font-size:14px;font-weight:700;margin-top:1px">${p.name}</div><div style="font-size:10px;color:rgba(255,255,255,0.8);margin-top:1px">${p.focus}</div></div>${[4,8,12].includes(week)?'<div class="recovery">⚠ RECOVERY WEEK — No intervals</div>':''}`;
+  document.getElementById('phaseBadge').textContent=`Phase ${ph+1} · Wk ${week}`;
+  document.getElementById('phaseBadge').style.background=p.color;
+}
+
+function changeWeek(d){
+  week=Math.max(1,Math.min(12,week+d));
+  localStorage.setItem('coachWeek',week);
+  renderWeek();
+  renderPlan();
+}
+
+function renderPlan(){
+  const ph=getPhase(week);
+  let s='';
+  SCHEDULE.forEach(sc=>{s+=`<div class="sched-item"><div class="day-badge" style="background:${sc.color}">${sc.day}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${sc.type}</div><div style="font-size:10px;color:var(--muted)">${sc.note}</div></div><div style="font-size:10px;color:var(--gold);text-align:right">${sc.hr}</div></div>`;});
+  document.getElementById('weekSchedule').innerHTML=s;
+  let ps='';
+  PHASES.forEach((p,i)=>{ps+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:${i<2?'1px solid rgba(255,255,255,0.05)':'none'}"><div style="background:${p.color};border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;color:white;min-width:52px;text-align:center">Wks ${p.weeks}</div><div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.focus}</div></div>${getPhase(week)===i?'<div style="color:var(--gold);font-size:16px;margin-left:auto">●</div>':''}</div>`;});
+  document.getElementById('phaseOverview').innerHTML=ps;
+}
+
+function renderZones(){
+  let h='';
+  ZONES.forEach(z=>{h+=`<div class="zone-card" style="background:${z.bg}"><div style="font-size:13px;font-weight:700;color:#1A2B4A">${z.name}</div><div style="font-size:15px;font-weight:800;color:#1A2B4A;margin:2px 0">${z.range}</div><div style="font-size:11px;color:#374151;line-height:1.5">${z.desc}</div></div>`;});
+  document.getElementById('zoneCards').innerHTML=h;
+}
+
+function handleFile(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  document.getElementById('uploadPlaceholder').style.display='none';
+  const img=document.getElementById('previewImg');
+  img.src=URL.createObjectURL(file);
+  img.style.display='block';
+  document.getElementById('analyseBtn').disabled=false;
+  document.getElementById('clearBtn').style.display='block';
+  document.getElementById('results').innerHTML='';
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('errorBox').style.display='none';
+  const r=new FileReader();
+  r.onload=e=>imgB64=e.target.result.split(',')[1];
+  r.readAsDataURL(file);
+}
+
+function clearUpload(){
+  imgB64=null;
+  document.getElementById('previewImg').style.display='none';
+  document.getElementById('previewImg').src='';
+  document.getElementById('uploadPlaceholder').style.display='block';
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('clearBtn').style.display='none';
+  document.getElementById('results').innerHTML='';
+  document.getElementById('emptyState').style.display='block';
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('fileInput').value='';
+}
+
+async function analyse(){
+  if(!imgB64||busy)return;
+  const key=getKey();
+  if(!key){
+    document.getElementById('keySection').style.display='block';
+    document.getElementById('keySection').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  busy=true;
+  document.getElementById('analyseBtn').disabled=true;
+  document.getElementById('loadingBox').style.display='block';
+  document.getElementById('results').innerHTML='';
+  document.getElementById('errorBox').style.display='none';
+  document.getElementById('emptyState').style.display='none';
+  const ph=getPhase(week);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:PROMPT,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgB64}},
+          {type:'text',text:`Analyse this Garmin screenshot. Week ${week}, ${PHASES[ph].name} phase. JSON only.`}
+        ]}]
+      })
+    });
+    const data=await res.json();
+    if(data.error){throw new Error(data.error.message||'API error');}
+    const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    const clean=txt.replace(/```json|```/g,'').trim();
+    const result=JSON.parse(clean);
+    showResults(result);
+    saveHistory(result);
+  }catch(e){
+    const eb=document.getElementById('errorBox');
+    eb.textContent='Analysis failed: '+e.message+'. Check your API key and internet connection.';
+    eb.style.display='block';
+  }
+  busy=false;
+  document.getElementById('loadingBox').style.display='none';
+  document.getElementById('analyseBtn').disabled=false;
+}
+
+function sc(s){return s>=8?'#2E7D32':s>=6?'#E8A020':'#C62828';}
+function sb(s){return s>=8?'#E8F5E9':s>=6?'#FFF8E1':'#FFEBEE';}
+
+function showResults(r){
+  const s=r.overallScore;
+  let h=`<div class="fade-in">`;
+  if(r.urgentFlag)h+=`<div class="card red" style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-size:22px">⚠️</span><span style="font-size:13px;font-weight:600;color:var(--red)">${r.urgentFlag}</span></div>`;
+  h+=`<div class="score-banner" style="background:${sb(s)};border:2px solid ${sc(s)}">
+    <div><div class="score-num" style="color:${sc(s)}">${s}</div><div style="font-size:11px;color:${sc(s)}">/10</div><div class="score-label" style="color:${sc(s)}">${r.scoreLabel}</div></div>
+    <div class="meta-grid">
+      <div><div class="ml">Type</div><div class="mv" style="color:#1A2B4A">${r.sessionType||'—'}</div></div>
+      <div><div class="ml">Duration</div><div class="mv" style="color:#1A2B4A">${r.duration||'—'}</div></div>
+      <div><div class="ml">Avg HR</div><div class="mv" style="color:#1A2B4A">${r.avgHR||'—'}</div></div>
+      <div><div class="ml">Calories</div><div class="mv" style="color:#1A2B4A">${r.calories||'—'}</div></div>
+    </div>
+  </div>`;
+  if(r.greyZoneWarning)h+=`<div class="grey-warn">⚠️ <strong>Grey Zone Warning:</strong> Too much time in Zone 3 (130–142 bpm). Slow down on easy days.</div>`;
+  h+=`<div style="margin-top:10px"><div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">ZONE 2 COMPLIANCE</div><div style="font-size:14px;font-weight:700">${r.zone2Compliance||'—'}</div></div>`;
+  h+=`<div class="card" style="margin-top:10px"><div class="clabel">📋 KEY FINDINGS</div>`;
+  (r.keyFindings||[]).forEach(f=>h+=`<div class="finding"><span style="color:var(--gold)">▸</span>${f}</div>`);
+  h+=`</div><div class="card green"><div class="clabel" style="color:#81C784">✅ WHAT YOU DID WELL</div>`;
+  (r.positives||[]).forEach(p=>h+=`<div class="finding"><span style="color:#4CAF50">✓</span>${p}</div>`);
+  h+=`</div><div class="card gold"><div class="clabel" style="color:var(--gold)">🎯 COACH ADJUSTMENTS</div>`;
+  (r.coachingAdjustments||[]).forEach(a=>h+=`<div class="finding"><span style="color:var(--gold)">→</span>${a}</div>`);
+  h+=`</div><div class="card"><div class="clabel">📅 WEEKLY CONTEXT</div><div style="font-size:13px;color:#CBD5E1;line-height:1.6">${r.weeklyContext}</div></div>`;
+  h+=`<div class="card blue"><div class="clabel" style="color:#64B5F6">⏭ NEXT SESSION</div><div style="font-size:13px;color:#CBD5E1;line-height:1.6">${r.nextSessionAdvice}</div></div></div>`;
+  document.getElementById('results').innerHTML=h;
+}
+
+function saveHistory(r){
+  const h=JSON.parse(localStorage.getItem('coachHistory')||'[]');
+  h.unshift({date:new Date().toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}),week,...r});
+  localStorage.setItem('coachHistory',JSON.stringify(h.slice(0,20)));
+  renderHistory();
+}
+
+function renderHistory(){
+  const h=JSON.parse(localStorage.getItem('coachHistory')||'[]');
+  const el=document.getElementById('historyList');
+  if(!h.length){el.innerHTML='<div class="empty">No assessments yet.<br>Upload your first Garmin screenshot to begin.</div>';return;}
+  el.innerHTML=h.map(s=>`<div class="hist-item"><div class="hist-score" style="color:${sc(s.overallScore)}">${s.overallScore}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${s.sessionType||'Session'} · Week ${s.week}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${s.date} · ${s.duration||'—'} · ${s.avgHR||'—'} avg HR</div></div><div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${sc(s.overallScore)}22;color:${sc(s.overallScore)}">${s.scoreLabel}</div></div>`).join('');
+}
+
+function clearHistory(){if(confirm('Clear all history?')){localStorage.removeItem('coachHistory');renderHistory();}}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['assess','plan','history','zones'][i]===name));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+init();
+</script>
+
+</body>
+</html>
