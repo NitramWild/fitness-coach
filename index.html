@@ -562,6 +562,12 @@ async function doAnalyse() {
   content.push({ type: 'text', text: 'Analyse these ' + images.length + ' Garmin Connect screenshots. Week ' + currentWeek + ' (' + phase.name + ' phase).' + (w.rec ? ' THIS IS A RECOVERY WEEK.' : '') + ' Return only the JSON object.' });
 
   try {
+    var payload = JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1200,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: content }]
+    });
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -570,12 +576,7 @@ async function doAnalyse() {
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-allow-browser': 'true'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: content }]
-      })
+      body: payload
     });
     if (!res.ok) {
       var errData = await res.json().catch(function() { return {}; });
@@ -610,7 +611,12 @@ async function doAnalyse() {
     initChat(result);
 
   } catch(err) {
-    showError('Network Error', err.message + ' — Make sure you have an internet connection and your API key is saved.');
+    var msg = err.message || err.toString();
+    if (msg.includes('Load failed') || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      showError('CORS / Network Block', 'Safari is blocking the API call. Fix: In Safari, go to Settings → Advanced → Experimental Features → turn OFF "NSURLSession WebSocket". Then try again. Error: ' + msg);
+    } else {
+      showError('Network Error', msg);
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '⚡ ANALYSE SESSION';
