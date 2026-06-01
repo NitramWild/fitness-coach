@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Martin's Fitness Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0B1426;
+    --navy2: #132040;
+    --navy3: #1E3058;
+    --gold: #E8A020;
+    --gold2: #F4C842;
+    --gold-dim: rgba(232,160,32,0.15);
+    --green: #22C55E;
+    --green-dim: rgba(34,197,94,0.15);
+    --red: #EF4444;
+    --red-dim: rgba(239,68,68,0.15);
+    --orange: #F97316;
+    --orange-dim: rgba(249,115,22,0.15);
+    --blue: #3B82F6;
+    --text: #E8EDF5;
+    --text-dim: rgba(232,237,245,0.55);
+    --border: rgba(232,160,32,0.2);
+    --card: rgba(19,32,64,0.8);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 20%, rgba(232,160,32,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(180deg, var(--navy2) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 16px 16px;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .header-inner { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(232,160,32,0.3);
+  }
+  .header-text h1 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--text); line-height: 1; }
+  .header-text p { font-size: 11px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.5px; }
+  .version-badge { margin-left: auto; background: var(--gold-dim); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gold); white-space: nowrap; }
+
+  /* TABS */
+  .tabs { display: flex; background: var(--navy2); border-radius: 14px; padding: 4px; margin: 20px 0 0; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 10px 6px; text-align: center; border-radius: 10px; font-size: 12px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; color: var(--text-dim); cursor: pointer; transition: all 0.2s; border: none; background: none; }
+  .tab.active { background: var(--gold); color: var(--navy); font-weight: 700; box-shadow: 0 2px 12px rgba(232,160,32,0.4); }
+
+  /* SECTIONS */
+  .section { display: none; padding-top: 20px; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(10px);
+  }
+  .card-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* API KEY */
+  .api-input-wrap { position: relative; }
+  .api-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 44px 12px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-input:focus { border-color: var(--gold); }
+  .api-input::placeholder { color: var(--text-dim); }
+  .api-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 16px; padding: 4px; }
+  .api-status { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; }
+  .api-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  .api-dot.ok { background: var(--green); }
+
+  /* WEEK SELECTOR */
+  .week-selector { display: flex; align-items: center; justify-content: space-between; }
+  .week-nav { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--border); color: var(--gold); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .week-nav:active { transform: scale(0.9); background: var(--gold); color: var(--navy); }
+  .week-display { text-align: center; }
+  .week-number { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--text); line-height: 1; }
+  .week-phase { font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-top: 2px; }
+  .week-targets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .target-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .target-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+  .target-value { font-size: 13px; font-weight: 600; color: var(--text); }
+  .recovery-banner { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 12px; color: #FCA5A5; text-align: center; }
+
+  /* IMAGE UPLOAD */
+  .upload-grid { display: flex; flex-direction: column; gap: 10px; }
+  .upload-add-btn { border: 2px dashed rgba(232,160,32,0.3); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 1px; transition: all 0.2s; background: rgba(232,160,32,0.04); }
+  .upload-add-btn:active { background: rgba(232,160,32,0.1); }
+  .upload-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .upload-thumb { aspect-ratio: 3/4; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(232,160,32,0.3); }
+  .upload-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(198,40,40,0.85); border: none; color: white; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .upload-count { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--text-dim); text-align: center; margin-top: 4px; }
+  .upload-slot {
+    aspect-ratio: 3/4;
+    border: 2px dashed rgba(232,160,32,0.25);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.02);
+  }
+  .upload-slot:active { transform: scale(0.97); }
+  .upload-slot.has-image { border-color: var(--gold); border-style: solid; }
+  .upload-slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .upload-slot .slot-icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-slot .slot-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-align: center; padding: 0 4px; }
+  .upload-slot .slot-check { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .upload-slot .slot-remove { position: absolute; top: 6px; left: 6px; width: 20px; height: 20px; border-radius: 50%; background: rgba(239,68,68,0.8); display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
+  input[type=file] { display: none; }
+
+  /* ANALYSE BUTTON */
+  .analyse-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--navy);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 24px rgba(232,160,32,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .analyse-btn:active { transform: scale(0.98); box-shadow: none; }
+  .analyse-btn:disabled { background: rgba(232,160,32,0.3); color: rgba(255,255,255,0.3); cursor: not-allowed; box-shadow: none; transform: none; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESULTS */
+  .rating-banner { border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+  .rating-icon { font-size: 36px; flex-shrink: 0; }
+  .rating-text h2 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; line-height: 1; }
+  .rating-text p { font-size: 13px; margin-top: 4px; opacity: 0.85; }
+  .badge { display: inline-block; border-radius: 20px; padding: 3px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; margin-top: 6px; margin-right: 4px; }
+
+  .key-message { background: var(--gold-dim); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+  .key-message-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .key-message p { font-size: 14px; line-height: 1.6; font-style: italic; color: var(--text); }
+
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .metric-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; text-align: center; }
+  .metric-box.alert { background: var(--red-dim); border-color: rgba(239,68,68,0.3); }
+  .metric-icon { font-size: 16px; margin-bottom: 4px; }
+  .metric-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--text); line-height: 1; }
+  .metric-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; }
+  .metric-alert { font-size: 9px; color: #FCA5A5; margin-top: 4px; }
+
+  /* ZONE BARS */
+  .zone-bars { display: flex; flex-direction: column; gap: 8px; }
+  .zone-row { }
+  .zone-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .zone-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .zone-pct { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text); }
+  .zone-track { background: rgba(255,255,255,0.06); border-radius: 4px; height: 8px; overflow: hidden; }
+  .zone-fill { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+
+  /* COACHING POINTS */
+  .coaching-point { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .coaching-point:last-child { border-bottom: none; }
+  .coaching-num { width: 24px; height: 24px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); flex-shrink: 0; }
+  .coaching-text { font-size: 13px; line-height: 1.6; color: var(--text); padding-top: 2px; }
+
+  .next-session { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 14px 16px; }
+  .next-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--green); margin-bottom: 6px; }
+  .next-text { font-size: 13px; line-height: 1.6; color: var(--text); }
+
+  /* PERFORMANCE GRAPH */
+  .graph-wrap { position: relative; height: 200px; margin: 8px 0; }
+  canvas { border-radius: 8px; }
+  .graph-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* HISTORY */
+  .history-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .history-item:active { background: rgba(255,255,255,0.06); }
+  .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .history-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .history-type { font-size: 13px; font-weight: 600; color: var(--text); }
+  .history-metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+  .history-metric { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .history-metric span { color: var(--text); }
+  .history-message { font-size: 12px; color: var(--text-dim); font-style: italic; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; line-height: 1.5; }
+  .history-expand { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--gold); margin-top: 8px; }
+  .history-detail { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+  .history-detail.open { display: block; }
+  .history-coaching { font-size: 12px; line-height: 1.7; color: var(--text-dim); }
+
+  .empty-state { text-align: center; padding: 48px 20px; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text-dim); letter-spacing: 1px; }
+  .empty-text { font-size: 13px; color: var(--text-dim); margin-top: 8px; line-height: 1.6; }
+
+  /* ERROR */
+  .error-box { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
+  .error-title { color: #FCA5A5; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .error-detail { color: rgba(252,165,165,0.7); font-size: 11px; font-family: 'JetBrains Mono', monospace; word-break: break-all; line-height: 1.5; }
+
+  .compliance-pill { border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-top: 14px; }
+  .compliance-pill.good { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .compliance-pill.bad { background: var(--red-dim); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+
+  .section-divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* SETTINGS */
+  .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { font-size: 14px; color: var(--text); }
+  .setting-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .clear-btn { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; border-radius: 8px; padding: 8px 14px; font-size: 12px; cursor: pointer; font-family: 'JetBrains Mono', monospace; }
+
+  /* FOLLOW-UP CHAT */
+  .chat-wrap { background: var(--navy2); border: 1px solid var(--border); border-radius: 14px; margin-top: 16px; overflow: hidden; }
+  .chat-header { background: var(--gold-dim); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+  .chat-header-icon { font-size: 16px; }
+  .chat-header-text { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .chat-messages { max-height: 320px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
+  .chat-msg.user { flex-direction: row-reverse; }
+  .chat-bubble { max-width: 82%; padding: 10px 13px; border-radius: 12px; font-size: 13px; line-height: 1.55; }
+  .chat-msg.coach .chat-bubble { background: rgba(255,255,255,0.06); color: var(--text); border-radius: 12px 12px 12px 2px; }
+  .chat-msg.user .chat-bubble { background: var(--gold); color: var(--navy); border-radius: 12px 12px 2px 12px; font-weight: 600; }
+  .chat-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+  .chat-msg.coach .chat-avatar { background: var(--navy3); }
+  .chat-msg.user .chat-avatar { background: var(--gold); }
+  .chat-input-row { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+  .chat-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; color: var(--text); font-size: 13px; font-family: "Lora", Georgia, serif; outline: none; resize: none; min-height: 42px; max-height: 100px; }
+  .chat-input:focus { border-color: var(--gold); }
+  .chat-input::placeholder { color: var(--text-dim); }
+  .chat-send { background: var(--gold); border: none; border-radius: 10px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; transition: all 0.2s; }
+  .chat-send:active { transform: scale(0.93); }
+  .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chat-typing { display: flex; gap: 4px; align-items: center; padding: 8px 12px; }
+  .chat-typing span { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: bounce 1.2s infinite; }
+  .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+  @media (max-width: 380px) {
+    .upload-slot .slot-label { font-size: 8px; }
+    .week-number { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">🏃</div>
+    <div class="header-text">
+      <h1>Martin's Fitness Coach</h1>
+      <p>12-Week HR Training Plan · Zone 2 · 80/20</p>
+    </div>
+    <div class="version-badge">v3.1</div>
+  </div>
+  <div class="wrap" style="padding-top:0; padding-bottom:0;">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('analyse')">📊 Analyse</button>
+      <button class="tab" onclick="showTab('graph')">📈 Progress</button>
+      <button class="tab" onclick="showTab('history')">📋 History</button>
+      <button class="tab" onclick="showTab('settings')">⚙️ Settings</button>
+    </div>
+  </div>
+</header>
+
+
+
+<div class="wrap">
+
+  <!-- ANALYSE TAB -->
+  <div id="tab-analyse" class="section active">
+
+    <!-- Hosting warning -->
+    <div id="corsWarning" class="card" style="display:none;background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.4);">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span style="font-size:24px;flex-shrink:0;">⚠️</span>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:1px;margin-bottom:6px;">RUNNING AS LOCAL FILE</div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Safari blocks API calls from local files. For the tool to work on your iPhone, you need to host it online. <strong style="color:var(--orange)">See Settings tab for the free 5-minute GitHub Pages setup.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card">
+      <div class="card-title">🔑 Anthropic API Key</div>
+      <div class="api-input-wrap">
+        <input type="password" id="apiKey" class="api-input" placeholder="sk-ant-api03-..." oninput="saveKey()">
+        <button class="api-toggle" onclick="toggleKey()">👁</button>
+      </div>
+      <div class="api-status">
+        <div class="api-dot" id="apiDot"></div>
+        <span id="apiStatus" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)">No key saved</span>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.5;">
+        Get your key at <strong style="color:var(--gold)">console.anthropic.com</strong> → API Keys. Stored locally on your device only.
+      </p>
+    </div>
+
+    <!-- Week Selector -->
+    <div class="card">
+      <div class="card-title">📅 Current Training Week</div>
+      <div class="week-selector">
+        <button class="week-nav" onclick="changeWeek(-1)">‹</button>
+        <div class="week-display">
+          <div class="week-number" id="weekNum">1</div>
+          <div class="week-phase" id="weekPhase">FOUNDATION PHASE</div>
+        </div>
+        <button class="week-nav" onclick="changeWeek(1)">›</button>
+      </div>
+      <div class="week-targets" id="weekTargets"></div>
+      <div id="recoveryBanner" class="recovery-banner" style="display:none">
+        🔴 Recovery Week — Reduced volume. No intervals. Let your body adapt.
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="card">
+      <div class="card-title">📸 Garmin Connect Screenshots</div>
+      <input type="file" id="multiFileInput" accept="image/*" multiple onchange="handleMultiFiles(this)" style="display:none">
+      <div id="thumbGrid" class="upload-thumbs" style="display:none"></div>
+      <div class="upload-count" id="uploadCount" style="display:none"></div>
+      <div class="upload-add-btn" id="addPhotoBtn" onclick="document.getElementById('multiFileInput').click()">
+        📷 &nbsp; TAP TO ADD SCREENSHOTS &nbsp; (up to 10)
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:10px;line-height:1.5;text-align:center;">
+        Add all screenshots for this activity — overview, HR zones, stats, laps. More = better analysis.
+      </p>
+    </div>
+
+    <!-- Analyse Button -->
+    <button class="analyse-btn" id="analyseBtn" onclick="analyse()">
+      <span>⚡ ANALYSE SESSION</span>
+    </button>
+
+    <!-- Error -->
+    <div id="errorBox" class="error-box" style="display:none">
+      <div class="error-title" id="errorTitle"></div>
+      <div class="error-detail" id="errorDetail"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" style="display:none; margin-top:20px;"></div>
+
+    <!-- Follow-up Chat -->
+    <div id="chatWrap" class="chat-wrap" style="display:none; margin-top:4px;">
+      <div class="chat-header">
+        <span class="chat-header-icon">💬</span>
+        <span class="chat-header-text">Ask Your Coach a Follow-Up Question</span>
+      </div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input-row">
+        <textarea id="chatInput" class="chat-input" placeholder="Ask anything about this session, your training or nutrition..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+        <button id="chatSend" class="chat-send" onclick="sendChatMessage()">➤</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GRAPH TAB -->
+  <div id="tab-graph" class="section">
+    <div class="card">
+      <div class="card-title">📈 Average Heart Rate Over Time</div>
+      <div class="graph-wrap">
+        <canvas id="hrChart" style="width:100%;height:200px;"></canvas>
+      </div>
+      <div class="graph-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#22C55E"></div>Run</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3B82F6"></div>Cycle</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(232,160,32,0.4);border:1px dashed var(--gold);"></div>Z2 Target (130)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏃 Zone 2 Compliance Rate</div>
+      <div class="graph-wrap">
+        <canvas id="complianceChart" style="width:100%;height:200px;"></canvas>
+      </div>
+    </div>
+    <div id="graphEmpty" class="empty-state" style="display:none;">
+      <div class="empty-icon">📈</div>
+      <div class="empty-title">No Data Yet</div>
+      <div class="empty-text">Analyse your first session to start tracking your performance graph.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" class="section">
+    <div id="historyList"></div>
+    <div id="historyEmpty" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No Sessions Yet</div>
+      <div class="empty-text">After you analyse your first Garmin Connect screenshot, your session history and coaching feedback will appear here.</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="section">
+    <div class="card">
+      <div class="card-title">👤 Athlete Profile</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Name</div><div class="setting-sub">Martin</div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Age</div><div class="setting-sub">61 years</div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Weight</div><div class="setting-sub">82 kg</div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Resting HR</div><div class="setting-sub">61 bpm</div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Max HR</div><div class="setting-sub">159 bpm</div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Medical Note</div><div class="setting-sub">L4/L5 Degenerative Disc Disease</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">❤️ Heart Rate Zones</div>
+      <div class="setting-row"><div><div class="setting-label">Zone 1 — Recovery</div><div class="setting-sub">98–118 bpm</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Zone 2 — Fat Burn / Base</div><div class="setting-sub" style="color:var(--green)">118–130 bpm ← Target for easy sessions</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Zone 3 — Grey Zone</div><div class="setting-sub" style="color:var(--orange)">130–142 bpm ← Avoid</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Zone 4 — Threshold</div><div class="setting-sub">142–152 bpm ← Intervals only</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Zone 5 — Maximum</div><div class="setting-sub">152–159 bpm</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗑 Data Management</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Session History</div><div class="setting-sub" id="sessionCount">0 sessions saved</div></div>
+        <button class="clear-btn" onclick="clearHistory()">Clear All</button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">API Key</div><div class="setting-sub">Stored locally on device</div></div>
+        <button class="clear-btn" onclick="clearKey()">Remove</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">ℹ️ About</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.7;">
+        This tool uses Claude AI (claude-sonnet-4-20250514) to analyse your Garmin Connect workout screenshots and compare them against your personalised 12-week heart rate training plan.<br><br>
+        Your API key and all session data are stored locally on your device using localStorage. Nothing is sent to any server except the Anthropic API for analysis.<br><br>
+        <strong style="color:var(--gold)">⚠️ Hosting Note:</strong> For best results on iPhone/iPad, host this file on GitHub Pages (free). See setup instructions below.
+      </p>
+      <div style="background:var(--gold-dim);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">📋 GITHUB PAGES SETUP (5 MINUTES, FREE)</div>
+        <div style="font-size:12px;color:var(--text-dim);line-height:1.9;">
+          1. Go to <strong style="color:var(--gold)">github.com</strong> → Sign up free<br>
+          2. Create new repository → name it <strong style="color:var(--text)">fitness-coach</strong><br>
+          3. Upload this HTML file, rename it to <strong style="color:var(--text)">index.html</strong><br>
+          4. Settings → Pages → Branch: main → Save<br>
+          5. Your URL: <strong style="color:var(--text)">yourusername.github.io/fitness-coach</strong><br>
+          6. Add that URL to your iPhone home screen via Safari Share → Add to Home Screen
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── KILL OLD SERVICE WORKER ─────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  });
+}
+caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+
+// ─── STATE ───────────────────────────────────────────
+const PLAN = {
+  phases: [
+    {name:'FOUNDATION', weeks:[1,2,3,4], color:'#3B82F6'},
+    {name:'DEVELOPMENT', weeks:[5,6,7,8], color:'#22C55E'},
+    {name:'CONSOLIDATION', weeks:[9,10,11,12], color:'#EC4899'},
+  ],
+  weeks: {
+    1:  {satRun:50, sunCycle:90,  intervals:'3×6min Z4', recovery:false},
+    2:  {satRun:55, sunCycle:100, intervals:'3×6min Z4', recovery:false},
+    3:  {satRun:60, sunCycle:110, intervals:'4×6min Z4', recovery:false},
+    4:  {satRun:45, sunCycle:75,  intervals:'REST', recovery:true},
+    5:  {satRun:65, sunCycle:120, intervals:'4×6min Z4', recovery:false},
+    6:  {satRun:70, sunCycle:120, intervals:'4×8min Z4', recovery:false},
+    7:  {satRun:75, sunCycle:150, intervals:'4×8min Z4', recovery:false},
+    8:  {satRun:50, sunCycle:90,  intervals:'REST', recovery:true},
+    9:  {satRun:75, sunCycle:150, intervals:'4×10min Z4', recovery:false},
+    10: {satRun:80, sunCycle:150, intervals:'4×10min Z4', recovery:false},
+    11: {satRun:85, sunCycle:180, intervals:'5×8min Z4', recovery:false},
+    12: {satRun:60, sunCycle:90,  intervals:'BENCHMARK', recovery:true},
+  }
+};
+
+let currentWeek = parseInt(localStorage.getItem('currentWeek') || '1');
+let images = []; // [{mime, b64, dataUrl}]
+let sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+
+// ─── INIT ─────────────────────────────────────────────
+window.onload = () => {
+  // Detect if running as local file
+  if (window.location.protocol === 'file:') {
+    document.getElementById('corsWarning').style.display = 'block';
+  }
+  loadKey();
+  renderWeek();
+  renderHistory();
+  renderGraphs();
+  updateSessionCount();
+};
+
+// ─── TABS ─────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'graph') renderGraphs();
+  if (name === 'history') renderHistory();
+}
+
+// ─── API KEY ──────────────────────────────────────────
+function saveKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (key.startsWith('sk-ant')) {
+    localStorage.setItem('apiKey', key);
+    document.getElementById('apiDot').className = 'api-dot ok';
+    document.getElementById('apiStatus').textContent = 'Key saved ✓';
+  } else {
+    document.getElementById('apiDot').className = 'api-dot';
+    document.getElementById('apiStatus').textContent = key ? 'Invalid key format' : 'No key saved';
+  }
+}
+function loadKey() {
+  const key = localStorage.getItem('apiKey') || '';
+  if (key) {
+    document.getElementById('apiKey').value = key;
+    document.getElementById('apiDot').className = 'api-dot ok';
+    document.getElementById('apiStatus').textContent = 'Key saved ✓';
+  }
+}
+function toggleKey() {
+  const input = document.getElementById('apiKey');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+function clearKey() {
+  localStorage.removeItem('apiKey');
+  document.getElementById('apiKey').value = '';
+  document.getElementById('apiDot').className = 'api-dot';
+  document.getElementById('apiStatus').textContent = 'No key saved';
+}
+
+// ─── WEEK ─────────────────────────────────────────────
+function changeWeek(d) {
+  currentWeek = Math.max(1, Math.min(12, currentWeek + d));
+  localStorage.setItem('currentWeek', currentWeek);
+  renderWeek();
+}
+function renderWeek() {
+  const w = PLAN.weeks[currentWeek];
+  const phase = PLAN.phases.find(p => p.weeks.includes(currentWeek));
+  document.getElementById('weekNum').textContent = currentWeek;
+  document.getElementById('weekPhase').textContent = phase.name + ' PHASE';
+  document.getElementById('weekPhase').style.color = phase.color;
+  const cycleStr = w.sunCycle >= 60 ? Math.floor(w.sunCycle/60)+'h'+(w.sunCycle%60?w.sunCycle%60+'m':'') : w.sunCycle+'min';
+  document.getElementById('weekTargets').innerHTML = `
+    <div class="target-box"><div class="target-label">🏃 Sat Run</div><div class="target-value">${w.recovery?w.satRun+'min EASY':w.satRun+'min Z2'}</div></div>
+    <div class="target-box"><div class="target-label">🚴 Sun Cycle</div><div class="target-value">${w.recovery?cycleStr+' EASY':cycleStr+' Z2'}</div></div>
+    <div class="target-box"><div class="target-label">⚡ Intervals</div><div class="target-value">${w.intervals}</div></div>
+  `;
+  document.getElementById('recoveryBanner').style.display = w.recovery ? 'block' : 'none';
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────
+function handleMultiFiles(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const remaining = 10 - images.length;
+  const toAdd = files.slice(0, remaining);
+  let loaded = 0;
+  toAdd.forEach(file => {
+    let mime = file.type;
+    if (!mime || mime === 'application/octet-stream') {
+      const n = file.name.toLowerCase();
+      mime = n.endsWith('.png') ? 'image/png' : n.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+    }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const b64 = ev.target.result.split(',')[1];
+      images.push({mime, b64, dataUrl: ev.target.result});
+      loaded++;
+      if (loaded === toAdd.length) renderThumbs();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function removeImage(idx, e) {
+  e.stopPropagation();
+  images.splice(idx, 1);
+  renderThumbs();
+}
+
+function renderThumbs() {
+  const grid = document.getElementById('thumbGrid');
+  const countEl = document.getElementById('uploadCount');
+  const addBtn = document.getElementById('addPhotoBtn');
+  if (!grid) return;
+  if (images.length === 0) {
+    grid.style.display = 'none';
+    countEl.style.display = 'none';
+    addBtn.style.display = 'block';
+    addBtn.innerHTML = '📷 &nbsp; TAP TO ADD SCREENSHOTS &nbsp; (up to 10)';
+    return;
+  }
+  grid.style.display = 'grid';
+  countEl.style.display = 'block';
+  countEl.textContent = images.length + ' screenshot' + (images.length !== 1 ? 's' : '') + ' loaded' + (images.length < 10 ? ' — tap + to add more' : ' — maximum reached');
+  grid.innerHTML = images.map((img, i) =>
+    '<div class="upload-thumb">' +
+    '<img src="' + img.dataUrl + '" alt="shot ' + (i+1) + '">' +
+    '<button class="thumb-remove" onclick="removeImage(' + i + ',event)">✕</button>' +
+    '</div>'
+  ).join('');
+  addBtn.style.display = images.length < 10 ? 'block' : 'none';
+  addBtn.innerHTML = '＋ &nbsp; ADD MORE SCREENSHOTS';
+}
+
+// ─── ANALYSE ──────────────────────────────────────────
+const SYSTEM_PROMPT = `You are Martin's personal endurance sports coach. Analyse his Garmin Connect workout screenshot(s) against his 12-week heart rate training plan.
+
+MARTIN'S PROFILE:
+- Age: 61 | Weight: 82kg | Resting HR: 61bpm | Max HR: 159bpm
+- Medical: L4/L5 Degenerative Disc Disease — always consider back safety
+- Goal: Fat loss + endurance fitness improvement
+- Devices: Garmin Fenix 6X Pro + Edge 530 + HRM-Pro Plus
+
+HR ZONES:
+- Z1 Recovery: 98–118 bpm
+- Z2 Fat Burn/Base: 118–130 bpm (TARGET for easy sessions)
+- Z3 Grey Zone AVOID: 130–142 bpm
+- Z4 Threshold: 142–152 bpm (intervals only)
+- Z5 Max: 152–159 bpm
+
+80/20 RULE: 80% of training in Z2, 20% in Z4. Zone 3 is NEVER the target.
+
+WEEKLY PLAN:
+Sat = Easy Zone 2 Run | Sun = Easy Zone 2 Cycle | Mon/Tue = Interval session | Thu = Weights | Wed/Fri = Rest
+
+WEEK TARGETS:
+Wk1: Run 50min, Cycle 90min, 3×6min Z4 | Wk2: Run 55min, Cycle 100min, 3×6min Z4 | Wk3: Run 60min, Cycle 110min, 4×6min Z4 | Wk4: RECOVERY Run 45min, Cycle 75min
+Wk5: Run 65min, Cycle 2h, 4×6min Z4 | Wk6: Run 70min, Cycle 2h, 4×8min Z4 BENCHMARK | Wk7: Run 75min, Cycle 2.5h, 4×8min Z4 | Wk8: RECOVERY
+Wk9: Run 75min, Cycle 2.5h, 4×10min Z4 | Wk10: Run 80min, Cycle 2.5h, 4×10min Z4 | Wk11: Run 85min, Cycle 3h, 5×8min Z4 | Wk12: RECOVERY + BENCHMARK
+
+CRITICAL COACHING RULES:
+- INTERVAL SESSIONS are DIFFERENT: avg HR above 130 is EXPECTED and CORRECT for interval runs/cycles. Do NOT penalise or flag this. The session structure is 15min Z2 warmup + Z4 intervals at 142-152bpm + Z2 cooldown. Average HR of 135-145bpm across the full session is perfect.
+- For EASY RUN or EASY CYCLE only: if avg HR > 130bpm — this is the most important issue to flag. Tell him clearly to slow down.
+- If time in Z3 > 20% on an EASY session: flag as "grey zone trap"
+- If Z2 compliance good on easy sessions: give genuine encouragement — this is hard to do
+- Always check if anything could aggravate L4/L5
+- Be direct like a real coach who cares. Use the actual numbers from the screenshots.
+- Martin is an experienced endurance athlete with 40 years experience and 150+ marathons/ultras. Do NOT give him beginner warnings about volume or joint adaptation.
+
+Return ONLY a raw JSON object. No markdown. No explanation. Start with { end with }.
+
+JSON structure:
+{
+  "workoutType": "Run|Cycle|Weights|Interval Run|Interval Cycle|Other",
+  "sessionDate": "string or null",
+  "duration": "e.g. 58 min",
+  "avgHR": 120,
+  "distance": "e.g. 8.2 km or null",
+  "paceOrSpeed": "e.g. 6:45/km or 28 km/h or null",
+  "timeInZ1": "12% or null",
+  "timeInZ2": "65% or null",
+  "timeInZ3": "18% or null",
+  "timeInZ4": "5% or null",
+  "timeInZ5": "0% or null",
+  "zone2Compliant": true,
+  "rating": "Excellent|Good|Needs Work|Concern",
+  "ratingReason": "one sentence",
+  "vsPlan": "On Target|Above Target|Below Target|Recovery Week Respected|Cannot Assess",
+  "vsPlanDetail": "specific comparison",
+  "coachingPoints": ["point 1", "point 2", "point 3"],
+  "nextSessionAdvice": "specific advice",
+  "keyMessage": "direct personal message to Martin"
+}`;
+
+async function analyse() {
+  const key = localStorage.getItem('apiKey') || '';
+  if (!key.startsWith('sk-ant')) {
+    showError('No API Key', 'Please enter your Anthropic API key in the field above. Get one from console.anthropic.com → API Keys.');
+    return;
+  }
+  const loadedImages = images;
+  if (loadedImages.length === 0) {
+    showError('No Screenshots', 'Please upload at least one Garmin Connect screenshot before analysing.');
+    return;
+  }
+
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  const btn = document.getElementById('analyseBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>ANALYSING...</span>';
+
+  const w = PLAN.weeks[currentWeek];
+  const phase = PLAN.phases.find(p => p.weeks.includes(currentWeek));
+
+  // Build content array with all uploaded images
+  const content = loadedImages.map(img => ({type: 'image', source: {type: 'base64', media_type: img.mime, data: img.b64}}));
+  content.push({
+    type: 'text',
+    text: `Analyse these ${loadedImages.length} Garmin Connect screenshot(s) from a single activity. I am on Week ${currentWeek} (${phase.name} phase). ${w.recovery ? 'THIS IS A RECOVERY WEEK.' : ''} Return only the JSON object.`
+  });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        system: SYSTEM_PROMPT,
+        messages: [{role: 'user', content}]
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      showError('API Error: ' + (data.error.type || 'unknown'), data.error.message || 'Check your API key and try again.');
+      return;
+    }
+
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    if (!raw) { showError('Empty Response', 'No response received. Please try again.'); return; }
+
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s === -1 || e === -1) { showError('Parse Error', 'Response: ' + raw.substring(0, 200)); return; }
+
+    let result;
+    try { result = JSON.parse(raw.substring(s, e+1)); }
+    catch(pe) { showError('JSON Error: ' + pe.message, raw.substring(s, s+300)); return; }
+
+    // Save session
+    const session = {
+      id: Date.now(),
+      week: currentWeek,
+      date: result.sessionDate || new Date().toLocaleDateString('en-ZA'),
+      savedAt: new Date().toISOString(),
+      ...result
+    };
+    sessions.unshift(session);
+    if (sessions.length > 50) sessions = sessions.slice(0, 50);
+    localStorage.setItem('sessions', JSON.stringify(sessions));
+    updateSessionCount();
+
+    renderResults(result);
+    renderHistory();
+    renderGraphs();
+
+  } catch(err) {
+    showError('Network Error', err.message + '. Check your internet connection.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>⚡ ANALYSE SESSION</span>';
+  }
+}
+
+// ─── RESULTS RENDER ───────────────────────────────────
+const ratingCfg = {
+  'Excellent': {bg:'#14532D', border:'#22C55E', text:'#86EFAC', icon:'🏆'},
+  'Good':      {bg:'#1E3A5F', border:'#3B82F6', text:'#93C5FD', icon:'✅'},
+  'Needs Work':{bg:'#431407', border:'#F97316', text:'#FED7AA', icon:'⚠️'},
+  'Concern':   {bg:'#450A0A', border:'#EF4444', text:'#FCA5A5', icon:'🚨'},
+};
+const vsCfg = {
+  'On Target':'#22C55E','Above Target':'#3B82F6','Below Target':'#F97316',
+  'Recovery Week Respected':'#A855F7','Cannot Assess':'#6B7280'
+};
+const zoneColors = ['#4FC3F7','#22C55E','#F97316','#EF4444','#A855F7'];
+
+function renderResults(r) {
+  const rc = ratingCfg[r.rating] || ratingCfg['Good'];
+  const zones = [
+    {label:'Z1 Recovery 98–118', pct:r.timeInZ1, col:zoneColors[0]},
+    {label:'Z2 Fat Burn 118–130 ✓', pct:r.timeInZ2, col:zoneColors[1]},
+    {label:'Z3 Grey Zone 130–142 ⚠', pct:r.timeInZ3, col:zoneColors[2]},
+    {label:'Z4 Threshold 142–152', pct:r.timeInZ4, col:zoneColors[3]},
+    {label:'Z5 Maximum 152–159', pct:r.timeInZ5, col:zoneColors[4]},
+  ].filter(z => z.pct && z.pct !== 'null');
+
+  const hrAlert = r.avgHR && r.avgHR > 130 && (r.workoutType === 'Run' || r.workoutType === 'Cycle');
+
+  const html = `
+    <div class="rating-banner" style="background:${rc.bg};border:1px solid ${rc.border};">
+      <div class="rating-icon">${rc.icon}</div>
+      <div class="rating-text" style="color:${rc.text}">
+        <h2>${r.rating}</h2>
+        <p>${r.ratingReason}</p>
+        <span class="badge" style="background:${vsCfg[r.vsPlan]||'#6B7280'};color:white;">${r.vsPlan}</span>
+        ${r.workoutType ? `<span class="badge" style="background:rgba(232,160,32,0.2);color:var(--gold);border:1px solid var(--border);">${r.workoutType}</span>` : ''}
+      </div>
+    </div>
+
+    <div class="key-message">
+      <div class="key-message-label">🎯 COACH'S KEY MESSAGE</div>
+      <p>"${r.keyMessage}"</p>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-box"><div class="metric-icon">⏱</div><div class="metric-value">${r.duration||'—'}</div><div class="metric-label">Duration</div></div>
+      <div class="metric-box ${hrAlert?'alert':''}"><div class="metric-icon">❤️</div><div class="metric-value">${r.avgHR ? r.avgHR+' bpm' : '—'}</div><div class="metric-label">Avg Heart Rate</div>${hrAlert?'<div class="metric-alert">⚠️ Above Z2 limit</div>':''}</div>
+      <div class="metric-box"><div class="metric-icon">📍</div><div class="metric-value">${r.distance||'—'}</div><div class="metric-label">Distance</div></div>
+      <div class="metric-box"><div class="metric-icon">⚡</div><div class="metric-value">${r.paceOrSpeed||'—'}</div><div class="metric-label">Pace / Speed</div></div>
+    </div>
+
+    ${zones.length > 0 ? `
+    <div class="card">
+      <div class="card-title">❤️ HR Zone Distribution</div>
+      <div class="zone-bars">
+        ${zones.map(z => {
+          const pct = parseFloat(z.pct) || 0;
+          return `<div class="zone-row">
+            <div class="zone-header"><span class="zone-name">${z.label}</span><span class="zone-pct">${z.pct}</span></div>
+            <div class="zone-track"><div class="zone-fill" style="width:${Math.min(pct,100)}%;background:${z.col};"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="compliance-pill ${r.zone2Compliant?'good':'bad'}">
+        ${r.zone2Compliant ? '✅ Zone 2 Compliance: GOOD' : '⚠️ Zone 2 Compliance: NEEDS WORK'}
+      </div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-title">💬 Coaching Points</div>
+      ${(r.coachingPoints||[]).map((pt,i) => `
+        <div class="coaching-point">
+          <div class="coaching-num">${i+1}</div>
+          <div class="coaching-text">${pt}</div>
+        </div>`).join('')}
+      <div class="section-divider"></div>
+      <div class="card-title" style="margin-bottom:10px;">📋 vs Plan</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">${r.vsPlanDetail}</p>
+    </div>
+
+    <div class="next-session">
+      <div class="next-label">▶ NEXT SESSION ADVICE</div>
+      <div class="next-text">${r.nextSessionAdvice}</div>
+    </div>
+  `;
+
+  const el = document.getElementById('results');
+  el.innerHTML = html;
+  el.style.display = 'block';
+
+  // Animate zone bars
+  setTimeout(() => {
+    document.querySelectorAll('.zone-fill').forEach(f => {
+      const w = f.style.width;
+      f.style.width = '0';
+      requestAnimationFrame(() => { f.style.width = w; });
+    });
+  }, 50);
+
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(() => initChat(result), 500);
+}
+
+// ─── FOLLOW-UP CHAT ───────────────────────────────────
+    let chatHistory = [];
+    let currentResult = null;
+
+    function initChat(result) {
+      currentResult = result;
+      chatHistory = [];
+      const wrap = document.getElementById('chatWrap');
+      const msgs = document.getElementById('chatMessages');
+      if (!wrap || !msgs) return;
+      wrap.style.display = 'block';
+      msgs.innerHTML = '';
+      addChatMessage('coach', "Great session analysed! Ask me anything about this workout, your training, nutrition, or recovery.");
+    }
+
+    function addChatMessage(role, text) {
+      const msgs = document.getElementById('chatMessages');
+      if (!msgs) return;
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + role;
+      const avatar = role === 'coach' ? '🏃' : '👤';
+      div.innerHTML = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + text.replace(/\n/g,'<br/>') + '</div>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+      const msgs = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'chat-msg coach';
+      div.id = 'typingIndicator';
+      div.innerHTML = '<div class="chat-avatar">🏃</div><div class="chat-bubble"><div class="chat-typing"><span></span><span></span><span></span></div></div>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const sendBtn = document.getElementById('chatSend');
+      const question = input.value.trim();
+      if (!question) return;
+      const key = localStorage.getItem('apiKey') || '';
+      if (!key.startsWith('sk-ant')) {
+        addChatMessage('coach', 'Please enter your API key in Settings first.');
+        return;
+      }
+      addChatMessage('user', question);
+      input.value = '';
+      sendBtn.disabled = true;
+      showTyping();
+      const ctx = currentResult ? 'SESSION: ' + currentResult.workoutType + ' | ' + currentResult.duration + ' | Avg HR: ' + currentResult.avgHR + 'bpm | ' + currentResult.rating + ' | ' + (currentResult.keyMessage||'') : '';
+      chatHistory.push({role:'user', content: question});
+      const sys = `You are Martin's personal endurance coach. You have just analysed his Garmin workout. Answer follow-up questions directly and practically. MARTIN: Age 61 | 82kg | RHR 61 | Max HR 159 | 40yrs endurance | 150+ marathons/ultras | L4/L5 disc disease | Zone 2 80/20 plan. HR ZONES: Z1 98-118 | Z2 118-130 | Z3 130-142 | Z4 142-152 | Z5 152-159. ${ctx} Be concise and direct. Mobile app - keep answers short. Use specific numbers.`;
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
+          body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:500, system:sys, messages:chatHistory})
+        });
+        const data = await res.json();
+        if (data.error) { hideTyping(); addChatMessage('coach','Error: '+data.error.message); sendBtn.disabled=false; return; }
+        const reply = data.content?.find(b=>b.type==='text')?.text || 'No response.';
+        chatHistory.push({role:'assistant', content:reply});
+        hideTyping();
+        addChatMessage('coach', reply);
+      } catch(err) {
+        hideTyping();
+        addChatMessage('coach','Network error — check connection.');
+      }
+      sendBtn.disabled = false;
+    }
+
+    function handleChatKey(e) {
+      if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+    }
+
+    // ─── GRAPHS ───────────────────────────────────────────
+function renderGraphs() {
+  const canvas1 = document.getElementById('hrChart');
+  const canvas2 = document.getElementById('complianceChart');
+  if (!canvas1 || !canvas2) return;
+
+  const hasSessions = sessions.filter(s => s.avgHR).length > 0;
+  document.getElementById('graphEmpty').style.display = hasSessions ? 'none' : 'block';
+
+  if (!hasSessions) { canvas1.style.display = 'none'; canvas2.style.display = 'none'; return; }
+  canvas1.style.display = 'block'; canvas2.style.display = 'block';
+
+  const runs = sessions.filter(s => s.avgHR && (s.workoutType === 'Run' || s.workoutType === 'Interval Run')).slice(0, 10).reverse();
+  const cycles = sessions.filter(s => s.avgHR && (s.workoutType === 'Cycle' || s.workoutType === 'Interval Cycle')).slice(0, 10).reverse();
+
+  drawLineChart(canvas1, runs, cycles);
+
+  const compliant = sessions.filter(s => typeof s.zone2Compliant === 'boolean').slice(0, 10).reverse();
+  drawComplianceChart(canvas2, compliant);
+}
+
+function drawLineChart(canvas, runs, cycles) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.offsetWidth || canvas.parentElement.offsetWidth;
+  const h = 200;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = {t:20, r:20, b:30, l:44};
+  const cw = w - pad.l - pad.r;
+  const ch = h - pad.t - pad.b;
+
+  const allHR = [...runs, ...cycles].map(s => s.avgHR).filter(Boolean);
+  if (allHR.length === 0) return;
+  const minHR = Math.max(80, Math.min(...allHR) - 10);
+  const maxHR = Math.min(170, Math.max(...allHR) + 10);
+
+  const toX = (i, total) => pad.l + (total <= 1 ? cw/2 : (i / (total-1)) * cw);
+  const toY = (hr) => pad.t + ch - ((hr - minHR) / (maxHR - minHR)) * ch;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  [minHR, 118, 130, maxHR].forEach(v => {
+    if (v < minHR || v > maxHR) return;
+    const y = toY(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = `${9 * dpr / dpr}px JetBrains Mono`;
+    ctx.fillText(v, 4, y + 4);
+  });
+
+  // Z2 band
+  ctx.fillStyle = 'rgba(34,197,94,0.07)';
+  ctx.fillRect(pad.l, toY(130), cw, toY(118) - toY(130));
+
+  // Z2 target line
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle = 'rgba(232,160,32,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(130)); ctx.lineTo(w - pad.r, toY(130)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw series
+  const drawSeries = (data, color) => {
+    if (data.length < 1) return;
+    ctx.beginPath();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    data.forEach((s, i) => {
+      const x = toX(i, data.length), y = toY(s.avgHR);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    data.forEach((s, i) => {
+      const x = toX(i, data.length), y = toY(s.avgHR);
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = 'var(--navy)'; ctx.lineWidth = 2; ctx.stroke();
+    });
+  };
+
+  drawSeries(runs, '#22C55E');
+  drawSeries(cycles, '#3B82F6');
+
+  // X labels
+  const allSessions = [...runs.map(s=>({...s,type:'run'})), ...cycles.map(s=>({...s,type:'cycle'}))].sort((a,b) => new Date(a.savedAt||0) - new Date(b.savedAt||0));
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = `9px JetBrains Mono`;
+  if (allSessions.length <= 8) {
+    allSessions.forEach((s, i) => {
+      const x = pad.l + (i / Math.max(allSessions.length - 1, 1)) * cw;
+      ctx.fillText('Wk' + s.week, x - 10, h - 6);
+    });
+  }
+}
+
+function drawComplianceChart(canvas, data) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.offsetWidth || canvas.parentElement.offsetWidth;
+  const h = 200;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  if (data.length === 0) { ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '13px Lora'; ctx.fillText('No compliance data yet', 60, 100); return; }
+
+  const pad = {t:20, r:20, b:30, l:20};
+  const bw = Math.min(40, (w - pad.l - pad.r) / data.length - 8);
+  const ch = h - pad.t - pad.b;
+  const spacing = (w - pad.l - pad.r) / data.length;
+
+  data.forEach((s, i) => {
+    const x = pad.l + spacing * i + spacing/2 - bw/2;
+    const isGood = s.zone2Compliant;
+    const bh = isGood ? ch * 0.85 : ch * 0.4;
+    const y = pad.t + ch - bh;
+
+    ctx.fillStyle = isGood ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)';
+    ctx.beginPath();
+    ctx.roundRect(x, y, bw, bh, 4);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '9px JetBrains Mono';
+    ctx.fillText('Wk' + s.week, x + bw/2 - 10, h - 8);
+    ctx.fillText(isGood ? '✓' : '✗', x + bw/2 - 4, y - 4);
+  });
+}
+
+// ─── HISTORY ──────────────────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if (sessions.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  empty.style.display = 'none';
+  const rc = ratingCfg;
+  list.innerHTML = sessions.map((s, i) => {
+    const cfg = rc[s.rating] || rc['Good'];
+    return `
+      <div class="history-item" onclick="toggleDetail(${i})">
+        <div class="history-header">
+          <div>
+            <div class="history-date">Week ${s.week} · ${s.date || s.savedAt?.substring(0,10) || 'Unknown date'}</div>
+            <div class="history-type">${cfg.icon} ${s.workoutType || 'Session'} — <span style="color:${cfg.text}">${s.rating}</span></div>
+          </div>
+          <span class="badge" style="background:${vsCfg[s.vsPlan]||'#6B7280'};color:white;font-size:9px;">${s.vsPlan||''}</span>
+        </div>
+        <div class="history-metrics">
+          ${s.duration ? `<div class="history-metric">⏱ <span>${s.duration}</span></div>` : ''}
+          ${s.avgHR ? `<div class="history-metric">❤️ <span>${s.avgHR} bpm</span></div>` : ''}
+          ${s.distance ? `<div class="history-metric">📍 <span>${s.distance}</span></div>` : ''}
+          ${s.paceOrSpeed ? `<div class="history-metric">⚡ <span>${s.paceOrSpeed}</span></div>` : ''}
+        </div>
+        <div class="history-message">"${s.keyMessage || ''}"</div>
+        <div class="history-expand" id="expand-${i}">▼ Show coaching points</div>
+        <div class="history-detail" id="detail-${i}">
+          <div class="history-coaching">
+            ${(s.coachingPoints||[]).map((p,j) => `<p style="margin-bottom:8px;"><strong style="color:var(--gold)">${j+1}.</strong> ${p}</p>`).join('')}
+            ${s.nextSessionAdvice ? `<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);"><strong style="color:var(--green)">Next:</strong> ${s.nextSessionAdvice}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function toggleDetail(i) {
+  const d = document.getElementById('detail-'+i);
+  const e = document.getElementById('expand-'+i);
+  const open = d.classList.toggle('open');
+  e.textContent = open ? '▲ Hide coaching points' : '▼ Show coaching points';
+}
+
+// ─── UTILS ────────────────────────────────────────────
+function showError(title, detail) {
+  document.getElementById('errorBox').style.display = 'block';
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorDetail').textContent = detail;
+  document.getElementById('errorBox').scrollIntoView({behavior:'smooth'});
+}
+function clearHistory() {
+  if (!confirm('Clear all ' + sessions.length + ' saved sessions?')) return;
+  sessions = [];
+  localStorage.removeItem('sessions');
+  renderHistory();
+  renderGraphs();
+  updateSessionCount();
+}
+function updateSessionCount() {
+  const el = document.getElementById('sessionCount');
+  if (el) el.textContent = sessions.length + ' sessions saved';
+}
+</script>
+</body>
+</html>
