@@ -393,6 +393,10 @@ var PLAN = {
   }
 };
 
+// ── API ENDPOINT ─────────────────────────────────────
+// After deploying proxy to Netlify, update this URL:
+var API_URL = 'https://martins-fitness-coach.netlify.app/v1/messages';
+
 var SYSTEM_PROMPT = [
   "You are Martin's personal endurance coach. Analyse his Garmin Connect workout screenshot(s) against his 12-week HR training plan.",
   "",
@@ -568,13 +572,12 @@ async function doAnalyse() {
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: content }]
     });
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-allow-browser': 'true'
+        'anthropic-version': '2023-06-01'
       },
       body: payload
     });
@@ -745,7 +748,7 @@ async function sendChat() {
   var ctx = currentResult ? 'SESSION: ' + currentResult.workoutType + ' | ' + currentResult.duration + ' | Avg HR ' + currentResult.avgHR + 'bpm | ' + currentResult.rating : '';
   var sys = "You are Martin's personal endurance coach. Answer follow-up questions directly and concisely.\n\nMARTIN: Age 61 | 82kg | RHR 61 | Max HR 159 | 40yrs endurance | 150+ marathons/ultras | L4/L5 disc disease | Zone 2 80/20 training plan\nHR ZONES: Z1=98-118 | Z2=118-130 | Z3=130-142 | Z4=142-152 | Z5=152-159\n\n" + ctx + "\n\nBe concise, direct, and practical. Mobile app so keep answers short. Use specific numbers.";
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-allow-browser': 'true' },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, system: sys, messages: chatHistory })
