@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Martin's Fitness Coach</title>
+<style>
+:root {
+  --navy: #0B1426;
+  --navy2: #132040;
+  --navy3: #1E3058;
+  --gold: #E8A020;
+  --gold2: #F4C842;
+  --green: #22C55E;
+  --red: #EF4444;
+  --orange: #F97316;
+  --blue: #3B82F6;
+  --text: #E8EDF5;
+  --dim: rgba(232,237,245,0.5);
+  --border: rgba(232,160,32,0.2);
+  --card: rgba(19,32,64,0.9);
+  --r: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--navy); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--navy2); border-bottom: 2px solid var(--gold); padding: 16px; position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 640px; margin: 0 auto; }
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.logo { width: 42px; height: 42px; background: linear-gradient(135deg, var(--gold), var(--gold2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.header-title { flex: 1; }
+.header-title h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.header-title p { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.ver { background: rgba(232,160,32,0.15); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--gold); font-family: monospace; }
+
+/* TABS */
+.tabs { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; background: var(--navy); border-radius: 10px; padding: 3px; }
+.tab { padding: 8px 4px; text-align: center; border-radius: 8px; font-size: 11px; color: var(--dim); cursor: pointer; border: none; background: none; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tab .ti { font-size: 16px; }
+.tab.active { background: var(--gold); color: var(--navy); font-weight: 700; }
+
+/* LAYOUT */
+.wrap { max-width: 640px; margin: 0 auto; padding: 16px; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 14px; }
+.card-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; font-family: monospace; display: flex; align-items: center; gap: 8px; }
+.card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* API KEY */
+.key-wrap { position: relative; }
+.key-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 12px 44px 12px 14px; color: var(--text); font-family: monospace; font-size: 13px; outline: none; }
+.key-input:focus { border-color: var(--gold); }
+.key-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--dim); cursor: pointer; font-size: 16px; padding: 4px; }
+.key-status { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--dim); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.dot.ok { background: var(--green); }
+.key-hint { font-size: 11px; color: var(--dim); margin-top: 8px; line-height: 1.5; }
+.key-hint a { color: var(--gold); }
+
+/* WEEK SELECTOR */
+.week-sel { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.week-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(232,160,32,0.1); border: 1px solid var(--border); color: var(--gold); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.week-btn:active { background: var(--gold); color: var(--navy); }
+.week-mid { text-align: center; }
+.week-num { font-size: 48px; font-weight: 800; color: var(--text); line-height: 1; }
+.week-phase { font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-top: 2px; }
+.week-targets { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.target-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.target-box .tl { font-size: 8px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; font-family: monospace; }
+.target-box .tv { font-size: 13px; font-weight: 600; }
+.rec-banner { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 12px; color: #FCA5A5; text-align: center; }
+
+/* UPLOAD */
+.upload-zone { border: 2px dashed rgba(232,160,32,0.25); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.02); transition: all 0.2s; }
+.upload-zone:active { background: rgba(232,160,32,0.08); }
+.upload-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-label { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.upload-sub { font-size: 12px; color: var(--dim); }
+.thumb-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 10px; }
+.thumb { aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(232,160,32,0.3); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-del { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: rgba(239,68,68,0.9); border: none; color: white; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.upload-count { font-size: 11px; color: var(--dim); text-align: center; margin-bottom: 8px; font-family: monospace; }
+.add-more { border: 1px dashed rgba(232,160,32,0.3); border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; color: var(--gold); font-size: 12px; font-family: monospace; letter-spacing: 1px; }
+.add-more:active { background: rgba(232,160,32,0.08); }
+
+/* ANALYSE BUTTON */
+.analyse-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--gold), var(--gold2)); color: var(--navy); border: none; border-radius: 12px; font-size: 18px; font-weight: 800; letter-spacing: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 20px rgba(232,160,32,0.3); transition: all 0.2s; }
+.analyse-btn:active { transform: scale(0.98); box-shadow: none; }
+.analyse-btn:disabled { background: rgba(232,160,32,0.3); color: rgba(255,255,255,0.3); cursor: not-allowed; transform: none; box-shadow: none; }
+.spinner { width: 18px; height: 18px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ERROR */
+.error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 14px; margin-top: 12px; }
+.error-title { color: #FCA5A5; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.error-detail { color: rgba(252,165,165,0.7); font-size: 11px; font-family: monospace; word-break: break-all; line-height: 1.5; }
+
+/* RESULTS */
+.rating-card { border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+.rating-icon { font-size: 36px; flex-shrink: 0; }
+.rating-label { font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.rating-reason { font-size: 13px; opacity: 0.85; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.badge { border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 700; font-family: monospace; }
+
+.key-msg { background: rgba(232,160,32,0.1); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.key-msg-label { font-size: 9px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; font-family: monospace; }
+.key-msg p { font-size: 14px; line-height: 1.6; font-style: italic; }
+
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.metric { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; text-align: center; }
+.metric.alert { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
+.m-icon { font-size: 16px; margin-bottom: 4px; }
+.m-val { font-size: 20px; font-weight: 800; line-height: 1; }
+.m-label { font-size: 9px; color: var(--dim); margin-top: 3px; letter-spacing: 1px; font-family: monospace; }
+.m-alert { font-size: 9px; color: #FCA5A5; margin-top: 3px; }
+
+.zone-bars { display: flex; flex-direction: column; gap: 8px; }
+.zb { }
+.zb-head { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.zb-name { font-size: 10px; color: var(--dim); font-family: monospace; }
+.zb-pct { font-size: 10px; font-family: monospace; }
+.zb-track { background: rgba(255,255,255,0.06); border-radius: 4px; height: 8px; overflow: hidden; }
+.zb-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.compliance { border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.compliance.good { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.compliance.bad { background: rgba(239,68,68,0.12); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+
+.coaching-point { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.coaching-point:last-child { border-bottom: none; }
+.cp-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(232,160,32,0.15); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; font-family: monospace; font-weight: 700; }
+.cp-text { font-size: 13px; line-height: 1.55; padding-top: 2px; }
+.next-sess { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 12px 14px; }
+.next-label { font-size: 9px; letter-spacing: 2px; color: var(--green); margin-bottom: 6px; font-family: monospace; }
+.next-text { font-size: 13px; line-height: 1.55; }
+
+/* CHAT */
+.chat-wrap { background: var(--navy2); border: 1px solid var(--border); border-radius: 14px; margin-top: 14px; overflow: hidden; }
+.chat-hdr { background: rgba(232,160,32,0.08); border-bottom: 1px solid var(--border); padding: 10px 14px; }
+.chat-hdr-txt { font-size: 10px; letter-spacing: 1.5px; color: var(--gold); font-family: monospace; text-transform: uppercase; }
+.chat-msgs { max-height: 300px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.cmsg { display: flex; gap: 8px; align-items: flex-start; }
+.cmsg.user { flex-direction: row-reverse; }
+.cbubble { max-width: 82%; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.cmsg.coach .cbubble { background: rgba(255,255,255,0.06); border-radius: 12px 12px 12px 2px; }
+.cmsg.user .cbubble { background: var(--gold); color: var(--navy); font-weight: 600; border-radius: 12px 12px 2px 12px; }
+.cavatar { width: 26px; height: 26px; border-radius: 50%; background: var(--navy3); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.chat-input-row { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+.chat-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 13px; outline: none; resize: none; height: 40px; font-family: -apple-system, sans-serif; }
+.chat-input:focus { border-color: var(--gold); }
+.chat-send { background: var(--gold); border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.chat-send:disabled { opacity: 0.4; }
+.typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dots span { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+/* PROGRESS */
+.chart-wrap { position: relative; height: 180px; margin: 8px 0; }
+.chart-wrap canvas { width: 100% !important; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--dim); font-family: monospace; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 44px; margin-bottom: 12px; }
+.empty-title { font-size: 18px; font-weight: 700; color: var(--dim); letter-spacing: 1px; margin-bottom: 8px; }
+.empty-sub { font-size: 13px; color: var(--dim); line-height: 1.6; }
+
+/* HISTORY */
+.hist-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
+.hist-item:active { background: rgba(255,255,255,0.06); }
+.hist-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.hist-date { font-size: 10px; color: var(--dim); font-family: monospace; }
+.hist-type { font-size: 13px; font-weight: 600; }
+.hist-metrics { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.hist-metric { font-size: 10px; color: var(--dim); font-family: monospace; }
+.hist-metric span { color: var(--text); }
+.hist-msg { font-size: 12px; color: var(--dim); font-style: italic; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; line-height: 1.5; }
+.hist-expand { font-size: 9px; color: var(--gold); margin-top: 8px; font-family: monospace; }
+.hist-detail { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+.hist-detail.open { display: block; }
+.hist-coaching { font-size: 12px; line-height: 1.7; color: var(--dim); }
+
+.session-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stype-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 6px; color: var(--dim); font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s; }
+.stype-btn:active { transform: scale(0.96); }
+.stype-btn.active { background: rgba(232,160,32,0.15); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+/* SETTINGS */
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 14px; }
+.setting-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.weight-input-wrap { display: flex; align-items: center; gap: 6px; }
+.weight-input { width: 64px; background: rgba(255,255,255,0.07); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; color: var(--text); font-size: 15px; font-weight: 700; text-align: center; outline: none; font-family: monospace; }
+.weight-input:focus { border-color: var(--gold); }
+.weight-unit { font-size: 12px; color: var(--dim); }
+.weight-save-btn { background: var(--gold); color: var(--navy); border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: monospace; letter-spacing: 1px; }
+.weight-save-btn:active { opacity: 0.8; }
+.weight-target { font-size: 10px; color: var(--dim); margin-top: 4px; font-family: monospace; }
+.weight-target span { color: var(--green); font-weight: 700; }
+.btn-danger { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; border-radius: 8px; padding: 7px 12px; font-size: 11px; cursor: pointer; font-family: monospace; }
+.zone-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+.zone-row:last-child { border-bottom: none; }
+.zone-bpm { font-family: monospace; font-size: 12px; color: var(--dim); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">🏃</div>
+      <div class="header-title">
+        <h1>MARTIN'S FITNESS COACH</h1>
+        <p>12-Week HR Training Plan · Zone 2 · 80/20</p>
+      </div>
+      <div class="ver">v4.1</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('analyse',this)"><span class="ti">📊</span>Analyse</button>
+      <button class="tab" onclick="showTab('progress',this)"><span class="ti">📈</span>Progress</button>
+      <button class="tab" onclick="showTab('history',this)"><span class="ti">📋</span>History</button>
+      <button class="tab" onclick="showTab('settings',this)"><span class="ti">⚙️</span>Settings</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="onFiles(this)">
+
+<div class="wrap">
+
+<!-- ANALYSE -->
+<div id="tab-analyse" class="section active">
+
+  <div class="card">
+    <div class="card-title">🔑 Anthropic API Key</div>
+    <div class="key-wrap">
+      <input type="password" id="apiKeyInput" class="key-input" placeholder="sk-ant-api03-..." oninput="onKeyInput()">
+      <button class="key-toggle" onclick="toggleKeyVis()">👁</button>
+    </div>
+    <div class="key-status">
+      <div class="dot" id="keyDot"></div>
+      <span id="keyStatus">No key saved — enter your key above</span>
+    </div>
+    <p class="key-hint">Get your free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys. Stored only on your device.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 Current Training Week</div>
+    <div class="week-sel">
+      <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="week-mid">
+        <div class="week-num" id="weekNum">1</div>
+        <div class="week-phase" id="weekPhase">FOUNDATION PHASE</div>
+      </div>
+      <button class="week-btn" onclick="changeWeek(1)">›</button>
+    </div>
+    <div class="week-targets" id="weekTargets"></div>
+    <div class="rec-banner" id="recBanner" style="display:none">🔴 Recovery Week — Reduced volume. No hard intervals. Let your body adapt.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏷️ Session Type</div>
+    <div class="session-type-grid" id="sessionTypeGrid">
+      <button class="stype-btn" onclick="selectSessionType('Run',this)">🏃 Easy Run</button>
+      <button class="stype-btn" onclick="selectSessionType('Cycle',this)">🚴 Easy Cycle</button>
+      <button class="stype-btn" onclick="selectSessionType('Interval Run',this)">⚡ Interval Run</button>
+      <button class="stype-btn" onclick="selectSessionType('Interval Cycle',this)">⚡ Interval Cycle</button>
+      <button class="stype-btn" onclick="selectSessionType('Weights',this)">🏋️ Weights</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📸 Garmin Connect Screenshots</div>
+    <div id="thumbGrid" class="thumb-grid" style="display:none"></div>
+    <div id="uploadCount" class="upload-count" style="display:none"></div>
+    <div id="addMoreBtn" class="add-more" style="display:none" onclick="document.getElementById('fileInput').click()">＋ ADD MORE SCREENSHOTS</div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📷</div>
+      <div class="upload-label">Tap to add screenshots</div>
+      <div class="upload-sub">Select up to 10 Garmin Connect screenshots<br>Overview · HR Zones · Stats · Laps — more = better analysis</div>
+    </div>
+  </div>
+
+  <button class="analyse-btn" id="analyseBtn" onclick="doAnalyse()">⚡ ANALYSE SESSION</button>
+
+  <div id="errorBox" class="error-box" style="display:none">
+    <div class="error-title" id="errorTitle"></div>
+    <div class="error-detail" id="errorDetail"></div>
+  </div>
+
+  <div id="results" style="display:none; margin-top:16px;"></div>
+
+  <div id="chatWrap" class="chat-wrap" style="display:none">
+    <div class="chat-hdr"><div class="chat-hdr-txt">💬 Ask Your Coach a Follow-Up Question</div></div>
+    <div id="chatMsgs" class="chat-msgs"></div>
+    <div class="chat-input-row">
+      <textarea id="chatInput" class="chat-input" placeholder="Ask anything about this session..." onkeydown="chatKey(event)"></textarea>
+      <button id="chatSendBtn" class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- PROGRESS -->
+<div id="tab-progress" class="section">
+  <div class="card" id="weightChartCard" style="display:none">
+    <div class="card-title">⚖️ Weight Progress</div>
+    <div class="chart-wrap"><canvas id="weightCanvas"></canvas></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--gold)"></div>Logged weight</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--green);border:1px dashed var(--green)"></div>Target (73–74 kg)</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">❤️ Average Heart Rate Over Time</div>
+    <div class="chart-wrap"><canvas id="hrCanvas"></canvas></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#22C55E"></div>Run</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#3B82F6"></div>Cycle</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(232,160,32,0.5);border:1px dashed var(--gold)"></div>Z2 Limit (130)</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">✅ Zone 2 Compliance</div>
+    <div class="chart-wrap"><canvas id="compCanvas"></canvas></div>
+  </div>
+  <div id="progressEmpty" class="empty-state">
+    <div class="empty-icon">📈</div>
+    <div class="empty-title">No Data Yet</div>
+    <div class="empty-sub">Analyse your first session to start seeing your progress graphs.</div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="tab-history" class="section">
+  <div id="historyList"></div>
+  <div id="historyEmpty" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <div class="empty-title">No Sessions Yet</div>
+    <div class="empty-sub">After you analyse a session it will appear here with full coaching notes.</div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="tab-settings" class="section">
+  <div class="card">
+    <div class="card-title">👤 Athlete Profile</div>
+    <div class="setting-row"><div><div class="setting-label">Name</div><div class="setting-sub">Martin</div></div></div>
+    <div class="setting-row"><div><div class="setting-label">Age</div><div class="setting-sub">61 years</div></div></div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Weight</div>
+        <div class="weight-target">Target: <span>73–74 kg</span></div>
+      </div>
+      <div>
+        <div class="weight-input-wrap">
+          <input type="number" id="weightInput" class="weight-input" min="50" max="150" step="0.1" placeholder="82">
+          <span class="weight-unit">kg</span>
+          <button class="weight-save-btn" onclick="saveWeight()">LOG</button>
+        </div>
+      </div>
+    </div>
+    <div class="setting-row"><div><div class="setting-label">Resting HR</div><div class="setting-sub">61 bpm</div></div></div>
+    <div class="setting-row"><div><div class="setting-label">Max HR</div><div class="setting-sub">159 bpm</div></div></div>
+    <div class="setting-row"><div><div class="setting-label">Experience</div><div class="setting-sub">~40 years endurance · 150+ marathons & ultras</div></div></div>
+    <div class="setting-row"><div><div class="setting-label">Medical</div><div class="setting-sub">L4/L5 Degenerative Disc Disease</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">❤️ Heart Rate Zones</div>
+    <div class="zone-row"><span>Zone 1 — Recovery</span><span class="zone-bpm">98–118 bpm</span></div>
+    <div class="zone-row"><span style="color:var(--green)">Zone 2 — Fat Burn ✓ TARGET</span><span class="zone-bpm" style="color:var(--green)">118–130 bpm</span></div>
+    <div class="zone-row"><span style="color:var(--orange)">Zone 3 — Grey Zone ⚠ AVOID</span><span class="zone-bpm" style="color:var(--orange)">130–142 bpm</span></div>
+    <div class="zone-row"><span>Zone 4 — Threshold (intervals)</span><span class="zone-bpm">142–152 bpm</span></div>
+    <div class="zone-row"><span>Zone 5 — Maximum</span><span class="zone-bpm">152–159 bpm</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗑 Data Management</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Session History</div><div class="setting-sub" id="sessionCount">0 sessions saved</div></div>
+      <button class="btn-danger" onclick="clearHistory()">Clear All</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">ℹ️ About</div>
+    <p style="font-size:13px;color:var(--dim);line-height:1.7">Martin's personal AI fitness coach powered by Claude (claude-sonnet-4-20250514). Analyses Garmin Connect screenshots against your personalised 12-week heart rate training plan.<br><br>Your API key and session history are stored only on this device using localStorage.</p>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── KILL ANY SERVICE WORKERS ──────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.unregister(); });
+  });
+}
+if (window.caches) {
+  caches.keys().then(function(keys) {
+    keys.forEach(function(k) { caches.delete(k); });
+  });
+}
+
+// ── TRAINING PLAN ─────────────────────────────────────
+var PLAN = {
+  phases: [
+    {name:'FOUNDATION',    weeks:[1,2,3,4],   color:'#3B82F6'},
+    {name:'DEVELOPMENT',   weeks:[5,6,7,8],   color:'#22C55E'},
+    {name:'CONSOLIDATION', weeks:[9,10,11,12], color:'#EC4899'}
+  ],
+  weeks: {
+    1:  {sat:'50min Z2',  sun:'1h30m Z2', int:'3x6min Z4',  rec:false},
+    2:  {sat:'55min Z2',  sun:'1h40m Z2', int:'3x6min Z4',  rec:false},
+    3:  {sat:'60min Z2',  sun:'1h50m Z2', int:'4x6min Z4',  rec:false},
+    4:  {sat:'45min EASY',sun:'1h15m EASY',int:'REST',       rec:true},
+    5:  {sat:'65min Z2',  sun:'2h Z2',    int:'4x6min Z4',  rec:false},
+    6:  {sat:'70min Z2',  sun:'2h Z2',    int:'4x8min Z4',  rec:false},
+    7:  {sat:'75min Z2',  sun:'2h30m Z2', int:'4x8min Z4',  rec:false},
+    8:  {sat:'50min EASY',sun:'1h30m EASY',int:'REST',       rec:true},
+    9:  {sat:'75min Z2',  sun:'2h30m Z2', int:'4x10min Z4', rec:false},
+    10: {sat:'80min Z2',  sun:'2h30m Z2', int:'4x10min Z4', rec:false},
+    11: {sat:'85min Z2',  sun:'3h Z2',    int:'5x8min Z4',  rec:false},
+    12: {sat:'60min EASY',sun:'1h30m EASY',int:'BENCHMARK', rec:true}
+  }
+};
+
+// ── API ENDPOINT ─────────────────────────────────────
+// After deploying proxy to Netlify, update this URL:
+var API_URL = 'https://martins-fitness-coach.netlify.app/v1/messages';
+
+function getSystemPrompt() {
+  var currentWeight = weightLogs.length ? weightLogs[weightLogs.length - 1].kg : 82;
+  return [
+  "You are Martin's personal endurance coach. Analyse his Garmin Connect workout screenshot(s) against his 12-week HR training plan.",
+  "",
+  "MARTIN: Age 61 | " + currentWeight + "kg | Resting HR 61bpm | Max HR 159bpm | ~40 years endurance sport | 150+ marathons & ultras | L4/L5 disc disease | Goal: fat loss + fitness",
+  "",
+  "HR ZONES: Z1=98-118 | Z2=118-130 (target easy sessions) | Z3=130-142 (avoid) | Z4=142-152 (intervals only) | Z5=152-159",
+  "",
+  "WEEKLY STRUCTURE: Sat=Easy Z2 run | Sun=Easy Z2 cycle | Mon/Tue=Interval session | Thu=Weights | Wed/Fri=Rest",
+  "80/20 RULE: 80% training in Z2, 20% in Z4. Zone 3 is never the target.",
+  "",
+  "CRITICAL RULES:",
+  "- INTERVAL SESSIONS: avg HR above 130 is EXPECTED and CORRECT. The session = 15min Z2 warmup + Z4 intervals + Z2 cooldown. Average 135-145bpm across full session is PERFECT. Do NOT penalise.",
+  "- EASY RUN/CYCLE only: if avg HR over 130bpm = most important issue, tell him to slow down.",
+  "- Martin has 40 years endurance experience. Never give beginner warnings about volume.",
+  "- Be direct and specific. Use actual numbers from screenshots. Like a real coach who cares.",
+  "",
+  "Return ONLY a raw JSON object — no markdown, no backticks, no explanation. Start with { end with }.",
+  "",
+  'JSON: {"workoutType":"Run|Cycle|Weights|Interval Run|Interval Cycle|Other","sessionDate":"string or null","duration":"e.g. 67 min","avgHR":128,"distance":"e.g. 10.6 km or null","paceOrSpeed":"e.g. 6:20/km or null","timeInZ1":"12% or null","timeInZ2":"65% or null","timeInZ3":"10% or null","timeInZ4":"8% or null","timeInZ5":"0% or null","zone2Compliant":true,"rating":"Excellent|Good|Needs Work|Concern","ratingReason":"one sentence","vsPlan":"On Target|Above Target|Below Target|Recovery Week Respected|Cannot Assess","vsPlanDetail":"specific comparison","coachingPoints":["point 1","point 2","point 3"],"nextSessionAdvice":"specific advice","keyMessage":"direct personal message to Martin"}'
+].join('\n');
+}
+
+// ── STATE ─────────────────────────────────────────────
+var currentWeek = parseInt(localStorage.getItem('mfc_week') || '1');
+var images = [];
+var sessions = [];
+var weightLogs = [];
+var currentResult = null;
+var chatHistory = [];
+var selectedSessionType = null;
+
+try { sessions = JSON.parse(localStorage.getItem('mfc_sessions') || '[]'); } catch(e) { sessions = []; }
+try { weightLogs = JSON.parse(localStorage.getItem('mfc_weights') || '[]'); } catch(e) { weightLogs = []; }
+
+// ── INIT ──────────────────────────────────────────────
+window.addEventListener('load', function() {
+  loadKey();
+  renderWeek();
+  renderHistory();
+  renderProgress();
+  updateCount();
+  loadWeightInput();
+});
+
+// ── TABS ──────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'progress') renderProgress();
+  if (name === 'history') renderHistory();
+}
+
+// ── API KEY ───────────────────────────────────────────
+function onKeyInput() {
+  var k = document.getElementById('apiKeyInput').value.trim();
+  if (k.startsWith('sk-ant')) {
+    localStorage.setItem('mfc_key', k);
+    document.getElementById('keyDot').className = 'dot ok';
+    document.getElementById('keyStatus').textContent = 'Key saved ✓';
+  } else {
+    document.getElementById('keyDot').className = 'dot';
+    document.getElementById('keyStatus').textContent = k ? 'Invalid format — must start with sk-ant' : 'No key saved — enter your key above';
+  }
+}
+function loadKey() {
+  var k = localStorage.getItem('mfc_key') || '';
+  if (k) {
+    document.getElementById('apiKeyInput').value = k;
+    document.getElementById('keyDot').className = 'dot ok';
+    document.getElementById('keyStatus').textContent = 'Key saved ✓';
+  }
+}
+function selectSessionType(type, btn) {
+  selectedSessionType = type;
+  document.querySelectorAll('.stype-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+function toggleKeyVis() {
+  var inp = document.getElementById('apiKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── WEEK ──────────────────────────────────────────────
+function changeWeek(d) {
+  currentWeek = Math.max(1, Math.min(12, currentWeek + d));
+  localStorage.setItem('mfc_week', currentWeek);
+  renderWeek();
+}
+function renderWeek() {
+  var w = PLAN.weeks[currentWeek];
+  var phase = PLAN.phases.filter(function(p) { return p.weeks.indexOf(currentWeek) >= 0; })[0];
+  document.getElementById('weekNum').textContent = currentWeek;
+  document.getElementById('weekPhase').textContent = phase.name + ' PHASE';
+  document.getElementById('weekPhase').style.color = phase.color;
+  document.getElementById('weekTargets').innerHTML =
+    '<div class="target-box"><div class="tl">🏃 SAT RUN</div><div class="tv">' + w.sat + '</div></div>' +
+    '<div class="target-box"><div class="tl">🚴 SUN CYCLE</div><div class="tv">' + w.sun + '</div></div>' +
+    '<div class="target-box"><div class="tl">⚡ INTERVALS</div><div class="tv">' + w.int + '</div></div>';
+  document.getElementById('recBanner').style.display = w.rec ? 'block' : 'none';
+}
+
+// ── FILE UPLOAD ───────────────────────────────────────
+function onFiles(input) {
+  var files = Array.from(input.files);
+  var remaining = 10 - images.length;
+  var toAdd = files.slice(0, remaining);
+  var loaded = 0;
+  if (!toAdd.length) { input.value = ''; return; }
+  toAdd.forEach(function(file) {
+    var mime = file.type || 'image/jpeg';
+    if (!mime || mime === 'application/octet-stream') {
+      var n = file.name.toLowerCase();
+      mime = n.endsWith('.png') ? 'image/png' : n.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      images.push({ mime: mime, b64: ev.target.result.split(',')[1], dataUrl: ev.target.result });
+      loaded++;
+      if (loaded === toAdd.length) renderThumbs();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+function removeImage(idx, e) {
+  e.stopPropagation();
+  images.splice(idx, 1);
+  renderThumbs();
+}
+function renderThumbs() {
+  var grid = document.getElementById('thumbGrid');
+  var countEl = document.getElementById('uploadCount');
+  var addBtn = document.getElementById('addMoreBtn');
+  var zone = document.getElementById('uploadZone');
+  if (!images.length) {
+    grid.style.display = 'none';
+    countEl.style.display = 'none';
+    addBtn.style.display = 'none';
+    zone.style.display = 'block';
+    return;
+  }
+  zone.style.display = 'none';
+  grid.style.display = 'grid';
+  countEl.style.display = 'block';
+  countEl.textContent = images.length + ' screenshot' + (images.length !== 1 ? 's' : '') + ' loaded' + (images.length < 10 ? ' — tap + to add more' : ' — maximum 10 reached');
+  grid.innerHTML = images.map(function(img, i) {
+    return '<div class="thumb"><img src="' + img.dataUrl + '" alt="' + (i+1) + '"><button class="thumb-del" onclick="removeImage(' + i + ',event)">✕</button></div>';
+  }).join('');
+  addBtn.style.display = images.length < 10 ? 'block' : 'none';
+}
+
+// ── ANALYSE ───────────────────────────────────────────
+async function doAnalyse() {
+  hideError();
+  var key = localStorage.getItem('mfc_key') || '';
+  if (!key || !key.startsWith('sk-ant')) {
+    showError('No API Key', 'Go to the ⚙️ Settings tab above, then scroll back to the Analyse tab. Enter your Anthropic API key in the KEY field at the top. Get a free key at console.anthropic.com → API Keys.');
+    return;
+  }
+  if (!images.length) {
+    showError('No Screenshots', 'Tap the upload area and select at least one Garmin Connect screenshot.');
+    return;
+  }
+  if (!selectedSessionType) {
+    showError('Select Session Type', 'Tap the session type above — Easy Run, Interval Run, etc — before analysing.');
+    return;
+  }
+  var btn = document.getElementById('analyseBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> ANALYSING...';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('chatWrap').style.display = 'none';
+
+  var w = PLAN.weeks[currentWeek];
+  var phase = PLAN.phases.filter(function(p) { return p.weeks.indexOf(currentWeek) >= 0; })[0];
+  var content = images.map(function(img) {
+    return { type: 'image', source: { type: 'base64', media_type: img.mime, data: img.b64 } };
+  });
+  var isInterval = selectedSessionType === 'Interval Run' || selectedSessionType === 'Interval Cycle';
+  var sessionTypeHint = 'SESSION TYPE: ' + selectedSessionType + '. workoutType MUST be "' + selectedSessionType + '". ' +
+    (isInterval ? 'This is an INTERVAL session. Structure is: Z2 warmup + Z4 intervals + Z2 cooldown. Average HR of 135-145bpm across the full session is PERFECT and CORRECT. Do NOT classify as a Z2 session. Do NOT penalise for high average HR.' : '');
+
+  content.push({ type: 'text', text: 'Analyse these ' + images.length + ' Garmin Connect screenshots. Week ' + currentWeek + ' (' + phase.name + ' phase). ' + (w.rec ? 'THIS IS A RECOVERY WEEK. ' : '') + sessionTypeHint + ' Return only the JSON object.' });
+
+  try {
+    var payload = JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1200,
+      system: getSystemPrompt(),
+      messages: [{ role: 'user', content: content }]
+    });
+    var res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01'
+      },
+      body: payload
+    });
+    if (!res.ok) {
+      var errData = await res.json().catch(function() { return {}; });
+      showError('API Error ' + res.status, (errData.error && errData.error.message) || 'Status ' + res.status + '. Check your API key is valid and has credits.');
+      return;
+    }
+    var data = await res.json();
+    if (data.error) { showError('API Error', data.error.message || 'Unknown error'); return; }
+    var raw = (data.content && data.content.find(function(b) { return b.type === 'text'; })) || {};
+    var txt = raw.text || '';
+    if (!txt) { showError('Empty Response', 'No response received from AI. Please try again.'); return; }
+    var s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+    if (s === -1 || e === -1) { showError('Parse Error', 'Response did not contain valid JSON. Raw: ' + txt.substring(0, 200)); return; }
+    var result;
+    try { result = JSON.parse(txt.substring(s, e + 1)); }
+    catch(pe) { showError('JSON Parse Error', pe.message + ' | ' + txt.substring(s, s + 200)); return; }
+
+    // Save session
+    var session = Object.assign({ id: Date.now(), week: currentWeek, date: result.sessionDate || new Date().toLocaleDateString('en-ZA'), savedAt: new Date().toISOString() }, result);
+    sessions.unshift(session);
+    if (sessions.length > 50) sessions = sessions.slice(0, 50);
+    localStorage.setItem('mfc_sessions', JSON.stringify(sessions));
+    updateCount();
+
+    currentResult = result;
+    chatHistory = [];
+    images = [];
+    selectedSessionType = null;
+    document.querySelectorAll('.stype-btn').forEach(function(b) { b.classList.remove('active'); });
+    renderThumbs();
+    renderResults(result);
+    renderHistory();
+    renderProgress();
+    initChat(result);
+
+  } catch(err) {
+    var msg = err.message || err.toString();
+    if (msg.includes('Load failed') || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      showError('CORS / Network Block', 'Safari is blocking the API call. Fix: In Safari, go to Settings → Advanced → Experimental Features → turn OFF "NSURLSession WebSocket". Then try again. Error: ' + msg);
+    } else {
+      showError('Network Error', msg);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⚡ ANALYSE SESSION';
+  }
+}
+
+// ── RESULTS ───────────────────────────────────────────
+var RATING = {
+  'Excellent': {bg:'#14532D', border:'#22C55E', tc:'#86EFAC', icon:'🏆'},
+  'Good':      {bg:'#1E3A5F', border:'#3B82F6', tc:'#93C5FD', icon:'✅'},
+  'Needs Work':{bg:'#431407', border:'#F97316', tc:'#FED7AA', icon:'⚠️'},
+  'Concern':   {bg:'#450A0A', border:'#EF4444', tc:'#FCA5A5', icon:'🚨'}
+};
+var VS_COLORS = {
+  'On Target':'#22C55E','Above Target':'#3B82F6','Below Target':'#F97316',
+  'Recovery Week Respected':'#A855F7','Cannot Assess':'#6B7280'
+};
+var ZONE_COLORS = ['#4FC3F7','#22C55E','#F97316','#EF4444','#A855F7'];
+
+function renderResults(r) {
+  var rc = RATING[r.rating] || RATING['Good'];
+  var vsColor = VS_COLORS[r.vsPlan] || '#6B7280';
+  var hrAlert = r.avgHR && r.avgHR > 130 && (r.workoutType === 'Run' || r.workoutType === 'Cycle');
+
+  var zones = [
+    {label:'Z1 Recovery 98-118', pct:r.timeInZ1, col:ZONE_COLORS[0]},
+    {label:'Z2 Fat Burn 118-130 ✓', pct:r.timeInZ2, col:ZONE_COLORS[1]},
+    {label:'Z3 Grey Zone 130-142 ⚠', pct:r.timeInZ3, col:ZONE_COLORS[2]},
+    {label:'Z4 Threshold 142-152', pct:r.timeInZ4, col:ZONE_COLORS[3]},
+    {label:'Z5 Max 152-159', pct:r.timeInZ5, col:ZONE_COLORS[4]}
+  ].filter(function(z) { return z.pct && z.pct !== 'null'; });
+
+  var zbHtml = zones.map(function(z) {
+    var pct = parseFloat(z.pct) || 0;
+    return '<div class="zb"><div class="zb-head"><span class="zb-name">' + z.label + '</span><span class="zb-pct">' + z.pct + '</span></div>' +
+      '<div class="zb-track"><div class="zb-fill" style="width:' + Math.min(pct,100) + '%;background:' + z.col + '"></div></div></div>';
+  }).join('');
+
+  var cpHtml = (r.coachingPoints || []).map(function(pt, i) {
+    return '<div class="coaching-point"><div class="cp-num">' + (i+1) + '</div><div class="cp-text">' + pt + '</div></div>';
+  }).join('');
+
+  var html =
+    '<div class="rating-card" style="background:' + rc.bg + ';border:1px solid ' + rc.border + '">' +
+      '<div class="rating-icon">' + rc.icon + '</div>' +
+      '<div style="color:' + rc.tc + '">' +
+        '<div class="rating-label">' + r.rating + '</div>' +
+        '<div class="rating-reason">' + r.ratingReason + '</div>' +
+        '<div class="badges">' +
+          '<span class="badge" style="background:' + vsColor + ';color:white">' + r.vsPlan + '</span>' +
+          (r.workoutType ? '<span class="badge" style="background:rgba(232,160,32,0.2);color:var(--gold);border:1px solid var(--border)">' + r.workoutType + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="key-msg"><div class="key-msg-label">🎯 COACH\'S KEY MESSAGE</div><p>"' + r.keyMessage + '"</p></div>' +
+
+    '<div class="metrics">' +
+      '<div class="metric"><div class="m-icon">⏱</div><div class="m-val">' + (r.duration || '—') + '</div><div class="m-label">DURATION</div></div>' +
+      '<div class="metric' + (hrAlert ? ' alert' : '') + '"><div class="m-icon">❤️</div><div class="m-val">' + (r.avgHR ? r.avgHR + ' bpm' : '—') + '</div><div class="m-label">AVG HEART RATE</div>' + (hrAlert ? '<div class="m-alert">⚠️ Above Z2 limit</div>' : '') + '</div>' +
+      '<div class="metric"><div class="m-icon">📍</div><div class="m-val">' + (r.distance || '—') + '</div><div class="m-label">DISTANCE</div></div>' +
+      '<div class="metric"><div class="m-icon">⚡</div><div class="m-val">' + (r.paceOrSpeed || '—') + '</div><div class="m-label">PACE / SPEED</div></div>' +
+    '</div>' +
+
+    (zbHtml ? '<div class="card"><div class="card-title">❤️ HR Zone Distribution</div><div class="zone-bars">' + zbHtml + '</div>' +
+      '<div class="compliance ' + (r.zone2Compliant ? 'good' : 'bad') + '">' + (r.zone2Compliant ? '✅ Zone 2 Compliance: GOOD' : '⚠️ Zone 2 Compliance: Needs Work') + '</div></div>' : '') +
+
+    '<div class="card"><div class="card-title">💬 Coaching Points</div>' + cpHtml +
+      '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">' +
+        '<div style="font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;font-family:monospace">📋 VS PLAN — WEEK ' + currentWeek + '</div>' +
+        '<div style="font-size:13px;color:var(--dim);line-height:1.6">' + r.vsPlanDetail + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="next-sess"><div class="next-label">▶ NEXT SESSION ADVICE</div><div class="next-text">' + r.nextSessionAdvice + '</div></div>';
+
+  var el = document.getElementById('results');
+  el.innerHTML = html;
+  el.style.display = 'block';
+  setTimeout(function() {
+    document.querySelectorAll('.zb-fill').forEach(function(f) {
+      var w2 = f.style.width; f.style.width = '0';
+      requestAnimationFrame(function() { f.style.width = w2; });
+    });
+  }, 50);
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── CHAT ──────────────────────────────────────────────
+function initChat(result) {
+  document.getElementById('chatWrap').style.display = 'block';
+  document.getElementById('chatMsgs').innerHTML = '';
+  chatHistory = [];
+  addChatMsg('coach', 'Session analysed! Ask me anything about this workout, your training, recovery, or nutrition.');
+}
+function addChatMsg(role, text) {
+  var msgs = document.getElementById('chatMsgs');
+  var div = document.createElement('div');
+  div.className = 'cmsg ' + role;
+  div.innerHTML = '<div class="cavatar">' + (role === 'coach' ? '🏃' : '👤') + '</div>' +
+    '<div class="cbubble">' + text.replace(/\n/g, '<br>') + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function showTyping() {
+  var msgs = document.getElementById('chatMsgs');
+  var div = document.createElement('div');
+  div.className = 'cmsg coach'; div.id = 'typingDot';
+  div.innerHTML = '<div class="cavatar">🏃</div><div class="cbubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function hideTyping() { var el = document.getElementById('typingDot'); if (el) el.remove(); }
+function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+async function sendChat() {
+  var input = document.getElementById('chatInput');
+  var q = input.value.trim();
+  if (!q) return;
+  var key = localStorage.getItem('mfc_key') || '';
+  if (!key.startsWith('sk-ant')) { addChatMsg('coach', 'Please enter your API key in the Analyse tab first.'); return; }
+  addChatMsg('user', q);
+  input.value = '';
+  document.getElementById('chatSendBtn').disabled = true;
+  showTyping();
+  chatHistory.push({ role: 'user', content: q });
+  var ctx = currentResult ? 'SESSION: ' + currentResult.workoutType + ' | ' + currentResult.duration + ' | Avg HR ' + currentResult.avgHR + 'bpm | ' + currentResult.rating : '';
+  var chatWeight = weightLogs.length ? weightLogs[weightLogs.length - 1].kg : 82;
+  var sys = "You are Martin's personal endurance coach. Answer follow-up questions directly and concisely.\n\nMARTIN: Age 61 | " + chatWeight + "kg | RHR 61 | Max HR 159 | 40yrs endurance | 150+ marathons/ultras | L4/L5 disc disease | Zone 2 80/20 training plan\nHR ZONES: Z1=98-118 | Z2=118-130 | Z3=130-142 | Z4=142-152 | Z5=152-159\n\n" + ctx + "\n\nBe concise, direct, and practical. Mobile app so keep answers short. Use specific numbers.";
+  try {
+    var res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-allow-browser': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, system: sys, messages: chatHistory })
+    });
+    var data = await res.json();
+    if (data.error) { hideTyping(); addChatMsg('coach', 'Error: ' + data.error.message); document.getElementById('chatSendBtn').disabled = false; return; }
+    var reply = (data.content && data.content.find(function(b) { return b.type === 'text'; })) || {};
+    var replyText = reply.text || 'No response received.';
+    chatHistory.push({ role: 'assistant', content: replyText });
+    hideTyping();
+    addChatMsg('coach', replyText);
+  } catch(err) {
+    hideTyping();
+    addChatMsg('coach', 'Network error: ' + err.message);
+  }
+  document.getElementById('chatSendBtn').disabled = false;
+}
+
+// ── WEIGHT LOGGING ────────────────────────────────────
+function loadWeightInput() {
+  var last = weightLogs.length ? weightLogs[weightLogs.length - 1].kg : 82;
+  document.getElementById('weightInput').value = last;
+}
+function saveWeight() {
+  var val = parseFloat(document.getElementById('weightInput').value);
+  if (!val || val < 40 || val > 200) { alert('Please enter a valid weight between 40 and 200 kg.'); return; }
+  var entry = { kg: val, date: new Date().toLocaleDateString('en-ZA'), savedAt: new Date().toISOString() };
+  weightLogs.push(entry);
+  if (weightLogs.length > 50) weightLogs = weightLogs.slice(-50);
+  localStorage.setItem('mfc_weights', JSON.stringify(weightLogs));
+  renderProgress();
+  // Brief confirmation
+  var btn = document.querySelector('.weight-save-btn');
+  btn.textContent = '✓ SAVED';
+  btn.style.background = 'var(--green)';
+  setTimeout(function() { btn.textContent = 'LOG'; btn.style.background = ''; }, 1500);
+}
+function drawWeightChart() {
+  var canvas = document.getElementById('weightCanvas');
+  if (!canvas) return;
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.offsetWidth || 300;
+  var h = 180;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var pad = {t:16,r:16,b:32,l:44};
+  var cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+
+  // Always include 82kg start baseline
+  var baseline = { kg: 82, date: 'Start', isBaseline: true };
+  var chartData = weightLogs.length ? [baseline].concat(weightLogs) : [baseline];
+
+  var vals = chartData.map(function(e) { return e.kg; });
+  var minW = Math.min.apply(null, vals.concat([73])) - 1;
+  var maxW = Math.max.apply(null, vals.concat([83])) + 1;
+  var toX = function(i) { return pad.l + (chartData.length <= 1 ? cw/2 : (i/(chartData.length-1))*cw); };
+  var toY = function(kg) { return pad.t + ch - ((kg-minW)/(maxW-minW))*ch; };
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  [Math.round(minW), 74, 76, 78, 80, 82, Math.round(maxW)].forEach(function(v) {
+    if (v < minW || v > maxW) return;
+    var y = toY(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '9px monospace';
+    ctx.fillText(v+'kg', 2, y+3);
+  });
+
+  // Target band 73–74
+  ctx.fillStyle = 'rgba(34,197,94,0.08)';
+  ctx.fillRect(pad.l, toY(74), cw, toY(73)-toY(74));
+  ctx.setLineDash([4,4]); ctx.strokeStyle = 'rgba(34,197,94,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(74)); ctx.lineTo(w-pad.r, toY(74)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(73)); ctx.lineTo(w-pad.r, toY(73)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(34,197,94,0.6)'; ctx.font = '8px monospace';
+  ctx.fillText('TARGET', pad.l+4, toY(73.5)+3);
+
+  // Weight line
+  if (chartData.length > 1) {
+    ctx.strokeStyle = '#E8A020'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    chartData.forEach(function(e, i) { i === 0 ? ctx.moveTo(toX(i), toY(e.kg)) : ctx.lineTo(toX(i), toY(e.kg)); });
+    ctx.stroke();
+  }
+
+  // Dots + date labels
+  chartData.forEach(function(e, i) {
+    var x = toX(i), y = toY(e.kg);
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2);
+    ctx.fillStyle = e.isBaseline ? 'rgba(232,160,32,0.4)' : '#E8A020'; ctx.fill();
+    ctx.strokeStyle = '#0B1426'; ctx.lineWidth = 2; ctx.stroke();
+    // Value label
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 10px monospace';
+    ctx.fillText(e.kg+'kg', x - 12, y - 9);
+    // Date label
+    if (chartData.length <= 8 || i % Math.ceil(chartData.length/8) === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '8px monospace';
+      var lbl = e.isBaseline ? 'Start' : (function() { var parts = e.date.split('/'); return parts.length >= 2 ? parts[0]+'/'+parts[1] : e.date; })();
+      ctx.fillText(lbl, x - 10, h - 6);
+    }
+  });
+}
+
+
+function renderProgress() {
+  var hasSessions = sessions.filter(function(s) { return s.avgHR; }).length > 0;
+  var emptyEl = document.getElementById('progressEmpty');
+  var weightCard = document.getElementById('weightChartCard');
+  var hasWeights = weightLogs.length > 0;
+
+  // Weight chart — always visible (82kg baseline always shown)
+  weightCard.style.display = 'block';
+  setTimeout(drawWeightChart, 50);
+
+  if (!hasSessions) {
+    emptyEl.style.display = hasWeights ? 'none' : 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  var runs = sessions.filter(function(s) { return s.avgHR && (s.workoutType === 'Run' || s.workoutType === 'Interval Run'); }).slice(0,10).reverse();
+  var cycles = sessions.filter(function(s) { return s.avgHR && (s.workoutType === 'Cycle' || s.workoutType === 'Interval Cycle'); }).slice(0,10).reverse();
+  drawHRChart(runs, cycles);
+  var compliant = sessions.filter(function(s) { return typeof s.zone2Compliant === 'boolean'; }).slice(0,10).reverse();
+  drawCompChart(compliant);
+}
+function drawHRChart(runs, cycles) {
+  var canvas = document.getElementById('hrCanvas');
+  if (!canvas) return;
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.offsetWidth || 300;
+  var h = 180;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var pad = {t:16,r:16,b:28,l:40};
+  var cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+  var all = runs.concat(cycles).map(function(s) { return s.avgHR; });
+  if (!all.length) return;
+  var minHR = Math.max(80, Math.min.apply(null,all) - 10);
+  var maxHR = Math.min(170, Math.max.apply(null,all) + 10);
+  var toX = function(i, total) { return pad.l + (total <= 1 ? cw/2 : (i/(total-1))*cw); };
+  var toY = function(hr) { return pad.t + ch - ((hr-minHR)/(maxHR-minHR))*ch; };
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  [minHR, 118, 130, maxHR].forEach(function(v) {
+    if (v < minHR || v > maxHR) return;
+    var y = toY(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '9px monospace';
+    ctx.fillText(v, 4, y+3);
+  });
+  // Z2 band
+  ctx.fillStyle = 'rgba(34,197,94,0.07)';
+  ctx.fillRect(pad.l, toY(130), cw, toY(118)-toY(130));
+  // Z2 limit line
+  ctx.setLineDash([4,4]); ctx.strokeStyle = 'rgba(232,160,32,0.4)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, toY(130)); ctx.lineTo(w-pad.r, toY(130)); ctx.stroke();
+  ctx.setLineDash([]);
+  function drawSeries(data, color) {
+    if (!data.length) return;
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    data.forEach(function(s, i) {
+      var x = toX(i, data.length), y = toY(s.avgHR);
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    data.forEach(function(s, i) {
+      var x = toX(i, data.length), y = toY(s.avgHR);
+      ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = '#0B1426'; ctx.lineWidth = 2; ctx.stroke();
+    });
+  }
+  drawSeries(runs, '#22C55E');
+  drawSeries(cycles, '#3B82F6');
+}
+function drawCompChart(data) {
+  var canvas = document.getElementById('compCanvas');
+  if (!canvas) return;
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.offsetWidth || 300;
+  var h = 180;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  if (!data.length) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='13px sans-serif'; ctx.fillText('No data yet', 60, 90); return; }
+  var pad = {t:16,r:16,b:28,l:16};
+  var ch = h - pad.t - pad.b;
+  var spacing = (w - pad.l - pad.r) / data.length;
+  var bw = Math.min(36, spacing - 6);
+  data.forEach(function(s, i) {
+    var x = pad.l + spacing*i + spacing/2 - bw/2;
+    var good = s.zone2Compliant;
+    var bh = good ? ch*0.85 : ch*0.35;
+    var y = pad.t + ch - bh;
+    ctx.fillStyle = good ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x,y,bw,bh,4) : ctx.rect(x,y,bw,bh);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '9px monospace';
+    ctx.fillText('Wk'+s.week, x + bw/2 - 10, h-8);
+    ctx.fillStyle = good ? '#22C55E' : '#EF4444';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(good ? '✓' : '✗', x + bw/2 - 5, y - 3);
+  });
+}
+
+// ── HISTORY ───────────────────────────────────────────
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  var empty = document.getElementById('historyEmpty');
+  if (!sessions.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = sessions.map(function(s, i) {
+    var rc = RATING[s.rating] || RATING['Good'];
+    var vsColor = VS_COLORS[s.vsPlan] || '#6B7280';
+    return '<div class="hist-item" onclick="toggleHistDetail(' + i + ')">' +
+      '<div class="hist-top">' +
+        '<div>' +
+          '<div class="hist-date">Week ' + s.week + ' · ' + (s.date || (s.savedAt||'').substring(0,10) || 'Unknown') + '</div>' +
+          '<div class="hist-type">' + rc.icon + ' ' + (s.workoutType||'Session') + ' — <span style="color:' + rc.tc + '">' + s.rating + '</span></div>' +
+        '</div>' +
+        '<span class="badge" style="background:' + vsColor + ';color:white;font-size:9px">' + (s.vsPlan||'') + '</span>' +
+      '</div>' +
+      '<div class="hist-metrics">' +
+        (s.duration ? '<div class="hist-metric">⏱ <span>' + s.duration + '</span></div>' : '') +
+        (s.avgHR ? '<div class="hist-metric">❤️ <span>' + s.avgHR + ' bpm</span></div>' : '') +
+        (s.distance ? '<div class="hist-metric">📍 <span>' + s.distance + '</span></div>' : '') +
+        (s.paceOrSpeed ? '<div class="hist-metric">⚡ <span>' + s.paceOrSpeed + '</span></div>' : '') +
+      '</div>' +
+      '<div class="hist-msg">"' + (s.keyMessage||'') + '"</div>' +
+      '<div class="hist-expand" id="hexp-' + i + '">▼ Show coaching points</div>' +
+      '<div class="hist-detail" id="hdet-' + i + '">' +
+        '<div class="hist-coaching">' +
+          (s.coachingPoints||[]).map(function(p,j) { return '<p style="margin-bottom:8px"><strong style="color:var(--gold)">' + (j+1) + '.</strong> ' + p + '</p>'; }).join('') +
+          (s.nextSessionAdvice ? '<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05)"><strong style="color:var(--green)">Next:</strong> ' + s.nextSessionAdvice + '</p>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function toggleHistDetail(i) {
+  var det = document.getElementById('hdet-' + i);
+  var exp = document.getElementById('hexp-' + i);
+  var open = det.classList.toggle('open');
+  exp.textContent = open ? '▲ Hide coaching points' : '▼ Show coaching points';
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showError(title, detail) {
+  var box = document.getElementById('errorBox');
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorDetail').textContent = detail;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth' });
+}
+function hideError() { document.getElementById('errorBox').style.display = 'none'; }
+function clearHistory() {
+  if (!confirm('Clear all ' + sessions.length + ' saved sessions?')) return;
+  sessions = [];
+  localStorage.removeItem('mfc_sessions');
+  renderHistory();
+  renderProgress();
+  updateCount();
+}
+function updateCount() {
+  var el = document.getElementById('sessionCount');
+  if (el) el.textContent = sessions.length + ' session' + (sessions.length !== 1 ? 's' : '') + ' saved';
+}
+</script>
+</body>
+</html>
